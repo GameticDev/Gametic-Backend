@@ -1,1 +1,1 @@
-{"root":["./src/index.ts"],"version":"5.8.3"}
+{"root":["./src/index.ts","./src/controller/ownercontroller.ts","./src/controller/usercontroller.ts","./src/middleware/asynchandler.ts","./src/middleware/uploadmulter.ts","./src/model/turfmodel.ts","./src/model/usermodel.ts","./src/routes/ownerroute.ts","./src/service/ownerservice.ts","./src/service/userservice.ts","./src/type/user.ts","./src/config/cloudinary.ts","./src/utils/customerror.ts","./src/utils/uservalidation.ts"],"errors":true,"version":"5.8.3"}
