@@ -31,14 +31,6 @@ export const registerValidation = Joi.object({
       "string.min": "Password must be at least 6 characters long.",
       "string.empty": "Password is required.",
     }),
-
-  confirmPassword: Joi.string()
-    .valid(Joi.ref("password"))
-    .required()
-    .messages({
-      "any.only": "Confirm Password must match Password.",
-      "string.empty": "Confirm Password is required.",
-    }),
 });
 
 
