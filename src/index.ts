@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 import ownerRoute from "./Routes/ownerRoute";
+import userRouter from './Routes/userRoutes'
 const app = express();
 dotenv.config();
 
@@ -20,6 +21,10 @@ app.use(express.urlencoded({ extended: true }));
 
 //owner apis
 app.use('/api/owner',ownerRoute)
+app.use('/api' , userRouter)
+app.get('/hello',(req,res)=>{
+  res.json("www")
+})
 
 
 const PORT = process.env.PORT;

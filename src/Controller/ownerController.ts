@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
-import asyncHandler from "../Middleware/asyncHandler";
+// import asyncHandler from "../Middleware/asyncHandler";
 import { CustomError } from "../utils/customError";
 import { deleteTurfService, editTurfService, turfService } from "../Service/ownerService";
 import Turff from "../Model/turfModel";
+import { asyncErrorhandler } from "../Middleware/asyncErrorHandler";
 
-export const createTurf=asyncHandler(async(req:Request,res:Response)=>{
+export const createTurf=asyncErrorhandler(async(req:Request,res:Response)=>{
     const data=req.body;
     const files=req.files as (Express.Multer.File & { path: string })[];
     if(!data||!files ){
@@ -21,7 +22,7 @@ export const createTurf=asyncHandler(async(req:Request,res:Response)=>{
 })
 
 
-export const deleteTurf=asyncHandler(async(req:Request,res:Response)=>{
+export const deleteTurf=asyncErrorhandler(async(req:Request,res:Response)=>{
     const{id}=req.params;
     if(!id){
         throw new CustomError("id not found",404)
@@ -35,7 +36,7 @@ export const deleteTurf=asyncHandler(async(req:Request,res:Response)=>{
 })
 
 
-export const editTurf=asyncHandler(async(req:Request,res:Response)=>{
+export const editTurf=asyncErrorhandler(async(req:Request,res:Response)=>{
     const data=req.body;
 
     const{id}=req.params;
@@ -51,7 +52,7 @@ if(!data||!id){
     })
 })
 
-export const turfById=asyncHandler(async(req:Request,res:Response)=>{
+export const turfById=asyncErrorhandler(async(req:Request,res:Response)=>{
 
     const{id}=req.params;
     if(!id){
@@ -65,7 +66,7 @@ export const turfById=asyncHandler(async(req:Request,res:Response)=>{
 })
 
 
-export const getAllturf=asyncHandler(async(req:Request,res:Response)=>{
+export const getAllturf=asyncErrorhandler(async(req:Request,res:Response)=>{
     
     const allTurf=await Turff.find()
 
