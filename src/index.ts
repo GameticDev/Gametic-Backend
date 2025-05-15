@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 import ownerRoute from "./Routes/ownerRoute";
 import userRouter from './Routes/userRoutes'
+import adminRoute from './Routes/adminRoutes'
 const app = express();
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 //owner apis
+app.use('/api/admin',adminRoute)
 app.use('/api/owner',ownerRoute)
 app.use('/api' , userRouter)
 app.get('/hello',(req,res)=>{
