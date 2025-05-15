@@ -23,7 +23,7 @@ export const registerUser = asyncHandler(
     const user = await registerUserSarvice({ username, email, password });
 
     res.status(201).json({
-      message: `🎉 User ${username} registered successfully!`,
+      message: ` User ${username} registered successfully!`,
       user,
     });
   }
