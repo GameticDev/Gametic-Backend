@@ -1,4 +1,3 @@
-
 import { Request, Response } from "express";
 import { asyncErrorhandler } from "../Middleware/asyncErrorHandler";
 import User from "../Model/userModel";
@@ -10,11 +9,25 @@ import {
 
 export const getAllUsers = asyncErrorhandler(
   async (req: Request, res: Response) => {
-    const users = await User.find();
+    const page = Number(req.query.page);
+    const limit = Number(req.query.limit);
+
+    if (isNaN(page) || isNaN(limit) || page < 1 || limit < 1) {
+      res.status(400).json({ message: "Invalid pagination parameters" });
+    }
+    const totalusers = await User.countDocuments();
+    const totalActiveUser = await User.countDocuments({ isBlocked: false });
+    const totalBannedUsers = await User.countDocuments({ isBlocked: true });
+    const users = await User.find({ role: { $ne: "admin" } })
+      .skip((page - 1) * limit)
+      .limit(limit);
 
     return res.status(200).json({
       message: "All Users fetched succesfully",
       users,
+      totalusers,
+      totalBannedUsers,
+      totalActiveUser,
     });
   }
 );
@@ -31,7 +44,6 @@ export const updateUsers = asyncErrorhandler(
     }
 
     res.status(200).json({
-
       user: {
         id: updatedUser._id,
         username: updatedUser.username,
