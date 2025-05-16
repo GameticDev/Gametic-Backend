@@ -9,6 +9,7 @@ import User from "../Model/userModel";
 import crypto from "crypto";
 import {sendOtp} from '../utils/sentEmail'
 
+
 export const registerUser = asyncHandler(
   async (req: Request<{}, {}, RegisterUserInput>, res: Response): Promise<void> => {
     const { username, email, password , role} = req.body;
