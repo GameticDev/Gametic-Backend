@@ -31,6 +31,7 @@ export const updateUsers = asyncErrorhandler(
     }
 
     res.status(200).json({
+
       user: {
         id: updatedUser._id,
         username: updatedUser.username,

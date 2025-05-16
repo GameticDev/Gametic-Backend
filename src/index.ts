@@ -3,6 +3,10 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 import ownerRoute from "./Routes/ownerRoute";
+
+import upload from "./Middleware/uploadMulter";
+import userRouter from './Routes/userRoutes'
+
 import userRouter from './Routes/userRoutes'
 import adminRoute from './Routes/adminRoutes'
 const app = express();
@@ -29,7 +33,16 @@ app.get('/hello',(req,res)=>{
 })
 
 
+// app.use('/api/owner',upload.array('image',5),ownerRoute)
+app.use('/api' , userRouter)
+app.get('/hello',(req,res)=>{
+  res.json("www")
+})
+const PORT = process.env.PORT ;
+
+
 const PORT = process.env.PORT;
+
 app.listen(PORT, () =>
   console.log(`Server running on http://localhost:${PORT}`)
 );

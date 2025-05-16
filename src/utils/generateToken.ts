@@ -1,12 +1,18 @@
 import jwt from 'jsonwebtoken';
 import { CustomError } from './customError';
 
+import {UserPayload} from "../Type/user"
+
+
+
+
 interface UserPayload {
   _id: string;
   email: string;
   role: string;
   username: string;
 }
+
 
 export const generateAccessToken = (user: UserPayload): string => {
   if (!process.env.JWT_SECRET) {
