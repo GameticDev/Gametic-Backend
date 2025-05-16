@@ -26,8 +26,6 @@ export const registerUserSarvice = async ({
 
   const user = await User.create({ username, email, password , role});
 
-  const user = await User.create({ username, email, password , role});
-
   return {
     id: user.id,
     username: user.username,
