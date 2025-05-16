@@ -9,6 +9,7 @@ import User from "../Model/userModel";
 import crypto from "crypto";
 import {sendOtp} from '../utils/sentEmail'
 
+
 export const registerUser = asyncHandler(
   async (req: Request<{}, {}, RegisterUserInput>, res: Response): Promise<void> => {
     const { username, email, password , role} = req.body;
@@ -67,6 +68,7 @@ export const loginUser = asyncHandler(async (req: Request<{}, {}, RegisterUserIn
 
 
 export const logOut = asyncHandler(async (req,res) => {
+   
   await logoutService()
 
     res.clearCookie('accessToken',{
@@ -131,6 +133,7 @@ if (user.otp !== otp || !user.expiresAt || user.expiresAt.getTime() < Date.now()
   res.status(400).json({ message: 'Invalid or expired OTP' });
   return;
 }
+
 
   user.otp = '';
   user.expiresAt = null
