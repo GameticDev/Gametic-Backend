@@ -17,3 +17,11 @@ export interface UserPayload {
   role: string;
   username: string;
 }
+
+export interface OtpDocument extends Document {
+  userId: string;
+  email: string;
+  otp: string;
+  createdAt: Date;
+  expiresAt: Date;
+}

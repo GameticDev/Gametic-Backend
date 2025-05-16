@@ -71,3 +71,7 @@ export const loginService = async ({ email, password }: LoginUserInput) => {
     },
   };
 };
+
+ export const logoutService = () => {
+  return true
+ }

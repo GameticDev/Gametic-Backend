@@ -7,6 +7,8 @@ export interface IUser {
   password: string;
   isBlocked?: boolean;
   role?: 'user' | 'owner' | 'admin';
+  otp : string ;
+  expiresAt : Date | null
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -42,7 +44,14 @@ const userSchema: Schema<IUserDocument> = new Schema(
       enum: ['user', 'owner', 'admin'],
       default: 'user',
     },
+    otp: {
+    type: String,
   },
+  expiresAt: {
+  type: Date,
+  // default: null,
+}
+},
   {
     timestamps: true,
   }
