@@ -2,6 +2,7 @@ export interface RegisterUserInput {
   username: string;
   email: string;
   password: string;
+
 role?: 'user' | 'owner' | 'admin';
 }
 
@@ -17,3 +18,4 @@ export interface UserPayload {
   role: string;
   username: string;
 }
+

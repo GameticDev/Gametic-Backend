@@ -9,11 +9,12 @@ export interface TurffData extends Document{
     turfType:'football'|'cricket'|'multi-sport';
     size?:string;
     image:string[];
-//     availability: {
-//   [day: string]: { start: string; end: string }[];
-// };
+    availability: {
+  [day: string]: { start: string; end: string }[];
+};
 hourlyRate:number;
-status:'active'|'inactive'
+status:'active'|'inactive';
+isDelete:Boolean;
 
 }
 
@@ -43,7 +44,7 @@ const turfSchema=new Schema<TurffData>(
         },
         turfType:{
             type:String,
-            enum:['football','cricket','multi-sport'],
+            enum:['football','cricket','swimming','basketball','badminton','tennis','volleyball','hockey'],
             required:true
         },
         size:{
@@ -61,8 +62,15 @@ const turfSchema=new Schema<TurffData>(
             type:String,
             enum:['active','inactive'],
             default:'active'
-        }
-
+        },
+        availability:{
+            type:String,
+            required:true,
+        },
+     isDelete: {
+      type: Boolean,
+      default: false
+    }
 
     },
     {
