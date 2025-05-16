@@ -1,20 +1,73 @@
 import User from "../Model/userModel";
-import { RegisterUserInput } from "../Type/user";
+import {
+  RegisterUserInput,
+  LoginUserInput,
+  UserPayload,
+} from "../Type/user";
 import { CustomError } from "../utils/customError";
+import {
+  genaraterefreshToken,
+  generateAccessToken,
+} from "../utils/generateToken";
 
-export const registerUserSarvice = async ({ username, email, password }: RegisterUserInput) => {
+
+
+export const registerUserSarvice = async ({
+  username,
+  email,
+  password,
+  role,
+}: RegisterUserInput) => {
   const existingUser = await User.findOne({ email });
 
   if (existingUser) {
     throw new CustomError("User already exists with this email");
   }
 
-  const user = await User.create({ username, email, password });
+  const user = await User.create({ username, email, password , role});
 
   return {
     id: user.id,
     username: user.username,
     email: user.email,
     password: user.password,
+    // role: user.role
+  };
+};
+
+export const loginService = async ({ email, password }: LoginUserInput) => {
+  const user = await User.findOne({ email });
+
+  if (!user) throw new CustomError("Invalid email or password", 401);
+  if (user.isBlocked) {
+    throw new CustomError(
+      "Your account is blocked. Please contact Admin for assistance.",
+      403
+    );
+  }
+
+  const isMatch = await user.matchPassword(password);
+  if (!isMatch) {
+    throw new CustomError("Invalid email or password", 401);
+  }
+
+  const payload: UserPayload = {
+    _id: user._id,
+    email: user.email,
+    role: user?.role || "owner", 
+    username: user.username,
+  };
+
+  const accessToken = generateAccessToken(payload);
+  const refreshToken = genaraterefreshToken(payload);
+
+  return {
+    accessToken,
+    refreshToken,
+    user: {
+      username: user.username,
+      email: user.email,
+      role: user.role,
+    },
   };
 };

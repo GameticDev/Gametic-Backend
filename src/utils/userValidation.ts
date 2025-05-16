@@ -31,6 +31,7 @@ export const registerValidation = Joi.object({
       "string.min": "Password must be at least 6 characters long.",
       "string.empty": "Password is required.",
     }),
+    role: Joi.string().valid('user', 'owner', 'admin').optional()
 });
 
 
