@@ -67,6 +67,7 @@ export const loginUser = asyncHandler(async (req: Request<{}, {}, RegisterUserIn
 
 
 export const logOut = asyncHandler(async (req,res) => {
+   
   await logoutService()
 
     res.clearCookie('accessToken',{
