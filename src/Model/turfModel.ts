@@ -1,12 +1,12 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 export interface TurffData extends Document{
-    // ownerId:mongoose.Types.ObjectId;
+    ownerId:mongoose.Types.ObjectId;
     name:string;
     city:string;
     area:string;
     address:string;
-    turfType:'football'|'cricket'|'multi-sport';
+    turfType:'football'|'cricket'|'swimming'|'basketball'|'badminton'|'tennis'|'volleyball'|'hockey'
     size?:string;
     image:string[];
     availability: {
@@ -21,11 +21,11 @@ isDelete:Boolean;
 
 const turfSchema=new Schema<TurffData>(
     {
-        // ownerId:{
-        //     type:Schema.Types.ObjectId,
-        //     ref:'User',
-        //     required:true
-        // },
+        ownerId:{
+            type:Schema.Types.ObjectId,
+            ref:'User',
+            required:true
+        },
         name:{
             type:String,
             required:true
