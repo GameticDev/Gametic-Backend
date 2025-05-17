@@ -18,7 +18,7 @@ mongoose
   .catch((err) => console.log(err));
 
 const corsOptions = {
-  origin: "http://localhost:3000",
+  origin: process.env.FRONTEND_URL,
   methods: ["GET", "POST", "PUT", "DELETE","PATCH"],
   credentials: true,
 };
