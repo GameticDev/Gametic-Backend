@@ -4,8 +4,12 @@ import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 import ownerRoute from "./Routes/ownerRoute";
 import userRouter from "./Routes/userRoutes";
-import adminRoute from "./Routes/adminRoutes";
 import cors from "cors";
+
+import adminRoute from './Routes/adminRoutes'
+
+import upload from "./Middleware/uploadMulter";
+
 const app = express();
 dotenv.config();
 
