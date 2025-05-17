@@ -17,11 +17,8 @@
     "bcrypt": "^6.0.0",
     "cloudinary": "^1.41.3",
     "cookie-parser": "^1.4.7",
-<<<<<<< HEAD
     "cors": "^2.8.5",
-=======
     "crypto": "^1.0.1",
->>>>>>> 9f1151cf4ae59ad7d15947f6fd4ea904b2af8e2f
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "joi": "^17.13.3",

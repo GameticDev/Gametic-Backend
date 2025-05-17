@@ -5,10 +5,7 @@ import mongoose from "mongoose";
 import ownerRoute from "./Routes/ownerRoute";
 import userRouter from "./Routes/userRoutes";
 import cors from "cors";
-
-
 import adminRoute from './Routes/adminRoutes'
-
 import upload from "./Middleware/uploadMulter";
 
 
