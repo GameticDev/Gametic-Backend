@@ -6,9 +6,12 @@ import ownerRoute from "./Routes/ownerRoute";
 import userRouter from "./Routes/userRoutes";
 import cors from "cors";
 
+
 import adminRoute from './Routes/adminRoutes'
 
 import upload from "./Middleware/uploadMulter";
+
+
 
 const app = express();
 dotenv.config();
@@ -30,6 +33,14 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
+
+//owner apis
+app.use("/api/admin", adminRoute);
+app.use("/api/owner", ownerRoute);
+app.use("/api", userRouter);
+app.get("/hello", (req, res) => {
+  res.json("www");
+});
 
 //owner apis
 app.use("/api/admin", adminRoute);
