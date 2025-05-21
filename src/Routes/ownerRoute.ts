@@ -1,3 +1,4 @@
+
 import express from 'express'
 import { createTurf, deleteTurf, editTurf, getAllturf, turfById } from '../Controller/ownerController'
 import upload from '../Middleware/uploadMulter';
@@ -12,4 +13,3 @@ ownerRoute.get('/getAllturf',getAllturf)
 ownerRoute.get('/getTurf/:id',turfById)
 
 export default ownerRoute;
-

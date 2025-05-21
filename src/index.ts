@@ -5,8 +5,18 @@ import mongoose from "mongoose";
 import ownerRoute from "./Routes/ownerRoute";
 import upload from "./Middleware/uploadMulter";
 import userRouter from './Routes/userRoutes'
+import cors from 'cors';
+
 const app = express();
 dotenv.config();
+
+
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 if (!process.env.MONGO_URI) {
   throw new Error("MONGO_URI is not defined in environment variables");
@@ -21,7 +31,8 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 
-// app.use('/api/owner',upload.array('image',5),ownerRoute)
+
+app.use('/api/owner',ownerRoute)
 app.use('/api' , userRouter)
 app.get('/hello',(req,res)=>{
   res.json("www")
