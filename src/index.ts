@@ -5,10 +5,7 @@ import mongoose from "mongoose";
 import ownerRoute from "./Routes/ownerRoute";
 import userRouter from "./Routes/userRoutes";
 import cors from "cors";
-
-
 import adminRoute from './Routes/adminRoutes'
-
 import upload from "./Middleware/uploadMulter";
 
 
@@ -50,7 +47,16 @@ app.get("/hello", (req, res) => {
   res.json("www");
 });
 
+// app.use('/api/owner',upload.array('image',5),ownerRoute)
+app.use('/api' , userRouter)
+app.get('/hello',(req,res)=>{
+  res.json("www")
+})
+const PORT = process.env.PORT ;
+
+
 const PORT = process.env.PORT;
+
 app.listen(PORT, () =>
   console.log(`Server running on http://localhost:${PORT}`)
 );

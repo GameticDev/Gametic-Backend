@@ -2,7 +2,7 @@ export interface RegisterUserInput {
   username: string;
   email: string;
   password: string;
-role?: 'user' | 'owner' | 'admin';
+  role?: 'user' | 'owner' | 'admin';
 }
 
 export interface LoginUserInput {
@@ -25,3 +25,4 @@ export interface OtpDocument extends Document {
   createdAt: Date;
   expiresAt: Date;
 }
+
