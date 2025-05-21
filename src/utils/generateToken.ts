@@ -1,10 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { CustomError } from './customError';
-
 import {UserPayload} from "../Type/user"
-
-
-
 
 interface UserPayload {
   _id: string;
@@ -12,6 +8,7 @@ interface UserPayload {
   role: string;
   username: string;
 }
+
 
 
 export const generateAccessToken = (user: UserPayload): string => {
