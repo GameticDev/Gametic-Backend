@@ -52,7 +52,6 @@ app.use('/api' , userRouter)
 app.get('/hello',(req,res)=>{
   res.json("www")
 })
-const PORT = process.env.PORT ;
 
 
 const PORT = process.env.PORT;

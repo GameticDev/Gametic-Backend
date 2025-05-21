@@ -34,43 +34,6 @@ export const registerUserSarvice = async ({
   };
 };
 
-export const loginService = async ({ email, password }: LoginUserInput) => {
-  const user = await User.findOne({ email });
-
-  if (!user) throw new CustomError("Invalid email or password", 401);
-  if (user.isBlocked) {
-    throw new CustomError(
-      "Your account is blocked. Please contact Admin for assistance.",
-      403
-    );
-  }
-
-  const isMatch = await user.matchPassword(password);
-  if (!isMatch) {
-    throw new CustomError("Invalid email or password", 401);
-  }
-
-  const payload: UserPayload = {
-    _id: user._id,
-    email: user.email,
-    role: user?.role || "owner", 
-    username: user.username,
-  };
-
-  const accessToken = generateAccessToken(payload);
-  const refreshToken = genaraterefreshToken(payload);
-
-  return {
-    accessToken,
-    refreshToken,
-    user: {
-      username: user.username,
-      email: user.email,
-      role: user.role,
-    },
-
-  };
-};
 
 export const loginService = async ({ email, password }: LoginUserInput) => {
   const user = await User.findOne({ email });
@@ -89,7 +52,7 @@ export const loginService = async ({ email, password }: LoginUserInput) => {
   }
 
   const payload: UserPayload = {
-    _id: user._id,
+    _id: user._id.toString(),
     email: user.email,
     role: user?.role || "owner", 
     username: user.username,

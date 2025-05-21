@@ -1,5 +1,4 @@
 import express from "express";
-import { registerUser } from "../Controller/userController";
 import { loginUser, registerUser , generateOtp , verifyOtp , logOut} from "../Controller/userController";
 
 
