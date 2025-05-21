@@ -23,7 +23,6 @@ export const registerUserSarvice = async ({
   if (existingUser) {
     throw new CustomError("User already exists with this email");
   }
-
   const user = await User.create({ username, email, password , role});
 
   return {
@@ -34,6 +33,7 @@ export const registerUserSarvice = async ({
     // role: user.role
   };
 };
+
 
 export const loginService = async ({ email, password }: LoginUserInput) => {
   const user = await User.findOne({ email });
@@ -52,7 +52,7 @@ export const loginService = async ({ email, password }: LoginUserInput) => {
   }
 
   const payload: UserPayload = {
-    _id: user._id,
+    _id: user._id.toString(),
     email: user.email,
     role: user?.role || "owner", 
     username: user.username,
