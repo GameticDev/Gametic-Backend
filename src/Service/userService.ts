@@ -23,7 +23,6 @@ export const registerUserSarvice = async ({
   if (existingUser) {
     throw new CustomError("User already exists with this email");
   }
-
   const user = await User.create({ username, email, password , role});
 
   return {
@@ -32,6 +31,44 @@ export const registerUserSarvice = async ({
     email: user.email,
     password: user.password,
     // role: user.role
+  };
+};
+
+export const loginService = async ({ email, password }: LoginUserInput) => {
+  const user = await User.findOne({ email });
+
+  if (!user) throw new CustomError("Invalid email or password", 401);
+  if (user.isBlocked) {
+    throw new CustomError(
+      "Your account is blocked. Please contact Admin for assistance.",
+      403
+    );
+  }
+
+  const isMatch = await user.matchPassword(password);
+  if (!isMatch) {
+    throw new CustomError("Invalid email or password", 401);
+  }
+
+  const payload: UserPayload = {
+    _id: user._id,
+    email: user.email,
+    role: user?.role || "owner", 
+    username: user.username,
+  };
+
+  const accessToken = generateAccessToken(payload);
+  const refreshToken = genaraterefreshToken(payload);
+
+  return {
+    accessToken,
+    refreshToken,
+    user: {
+      username: user.username,
+      email: user.email,
+      role: user.role,
+    },
+
   };
 };
 

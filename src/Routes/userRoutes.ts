@@ -1,5 +1,8 @@
 import express from "express";
+import { registerUser } from "../Controller/userController";
 import { loginUser, registerUser , generateOtp , verifyOtp , logOut} from "../Controller/userController";
+
+
 
 const router = express.Router();
 
@@ -12,5 +15,6 @@ router.post("/logout" , logOut )
 router.post('/genaraetotp' , generateOtp)
 
 router.post('/verifyotp' , verifyOtp)
+
 
 export default router;

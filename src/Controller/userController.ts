@@ -14,11 +14,13 @@ export const registerUser = asyncHandler(
   async (req: Request<{}, {}, RegisterUserInput>, res: Response): Promise<void> => {
     const { username, email, password , role} = req.body;
 
+
     const { error }: { error?: ValidationError } = registerValidation.validate({
       username,
       email,
       password,
       role,
+
     });
 
     if (error) {
@@ -27,6 +29,7 @@ export const registerUser = asyncHandler(
     }
 
     const user = await registerUserSarvice({ username, email, password , role });
+
 
     res.status(201).json({
       message: ` User ${username} registered successfully!`,
@@ -48,7 +51,7 @@ export const loginUser = asyncHandler(async (req: Request<{}, {}, RegisterUserIn
     res.cookie("accessToken", accessToken, {
     httpOnly: true,
     secure: true,
-    maxAge:  50 * 60 * 1000, 
+    maxAge: 3 * 24 * 60 * 60 * 1000, 
     path: "/",
     sameSite: "none",
   });
