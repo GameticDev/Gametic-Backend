@@ -7,17 +7,27 @@ export const getAllVenues = asyncErrorhandler(
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
     const search = req.query.search as string | undefined;
+    const turfType = req.query.type as string | undefined;
 
     if (isNaN(page) || isNaN(limit) || page < 1 || limit < 1) {
       return res.status(400).json({ message: "Invalid pagination parameters" });
     }
 
     const query: Partial<{
-      name: { $regex: string; $options: string };
+      $or?: Array<{ [key: string]: { $regex: string; $options: string } }>;
+      turfType: string;
     }> = {};
 
+
+    if (turfType) {
+      query.turfType = turfType;
+    }
+
     if (search) {
-      query.name = { $regex: search, $options: "i" };
+      query.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { turfType: { $regex: search, $options: "i" } },
+      ];
     }
 
     const totalVenues = await Turff.countDocuments(query);
