@@ -58,7 +58,7 @@ export const loginService = async ({ email, password }: LoginUserInput) => {
   }
 
   const payload: UserPayload = {
-    _id: user._id,
+    _id: user._id.toString(),
     email: user.email,
     role: user?.role || "owner", 
     picture : "" ,

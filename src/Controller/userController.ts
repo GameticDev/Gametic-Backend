@@ -26,6 +26,7 @@ export const registerUser = asyncHandler(
       email,
       password,
       role,
+
     });
 
     if (error) {

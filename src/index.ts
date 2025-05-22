@@ -40,13 +40,22 @@ app.get("/hello", (req, res) => {
   res.json("www");
 });
 
+//owner apis
+app.use("/api/admin", adminRoute);
+app.use("/api/owner", ownerRoute);
+app.use("/api", userRouter);
+app.get("/hello", (req, res) => {
+  res.json("www");
+});
 
 // app.use('/api/owner',upload.array('image',5),ownerRoute)
 // app.use('/api' , userRouter)
 app.get('/hello',(req,res)=>{
   res.json("www")
 })
-const PORT = process.env.PORT ;
+
+
+const PORT = process.env.PORT;
 
 app.listen(PORT, () =>
   console.log(`Server running on http://localhost:${PORT}`)

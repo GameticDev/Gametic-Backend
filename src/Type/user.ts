@@ -15,7 +15,7 @@ export interface LoginUserInput {
 
 
 export interface UserPayload {
-  _id: unknown;
+  _id: string;
   email: string;
   role: string;
   username: string;
@@ -29,4 +29,6 @@ export interface OtpDocument extends Document {
   createdAt: Date;
   expiresAt: Date;
 }
+
+
 
