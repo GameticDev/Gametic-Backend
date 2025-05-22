@@ -2,8 +2,11 @@ export interface RegisterUserInput {
   username: string;
   email: string;
   password: string;
-  role?: 'user' | 'owner' | 'admin';
+  role: "user" | "owner" | "admin";
+  picture: string;
+  sing : string 
 }
+
 
 export interface LoginUserInput {
   email: string;
@@ -16,6 +19,7 @@ export interface UserPayload {
   email: string;
   role: string;
   username: string;
+  picture : string;
 }
 
 export interface OtpDocument extends Document {
@@ -25,4 +29,6 @@ export interface OtpDocument extends Document {
   createdAt: Date;
   expiresAt: Date;
 }
+
+
 
