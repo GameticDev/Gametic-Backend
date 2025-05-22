@@ -14,7 +14,7 @@ router.post('/genaraetotp' , generateOtp)
 
 router.post('/verifyotp' , verifyOtp)
 
-router.post('/google', googleAuth)
+router.post('/auth/google', googleAuth)
 
 // router.post("/check",loginUser)
 
