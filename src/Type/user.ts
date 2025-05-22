@@ -4,7 +4,7 @@ export interface RegisterUserInput {
   password: string;
   role: "user" | "owner" | "admin";
   picture: string;
-  sing : string 
+  sign : string 
 }
 
 
@@ -17,9 +17,9 @@ export interface LoginUserInput {
 export interface UserPayload {
   _id: string;
   email: string;
-  role: string;
+  role: "user" | "owner" | "admin";
+  picture: string;
   username: string;
-  picture : string;
 }
 
 export interface OtpDocument extends Document {

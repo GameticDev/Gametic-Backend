@@ -1,18 +1,19 @@
 import { Request, Response } from "express";
-import { RegisterUserInput } from "../Type/user";
+import { RegisterUserInput, UserPayload } from "../Type/user";
 import { loginValidation, registerValidation } from "../utils/userValidation";
 import { ValidationError } from "joi";
 import asyncHandler from "../Middleware/asyncHandler";
 import {
   loginService,
-  registerUserSarvice,
+  registerUserService,
   logoutService,
 } from "../Service/userService";
 import { CustomError } from "../utils/customError";
 import User from "../Model/userModel";
 import crypto from "crypto";
 import { sendOtp } from "../utils/sentEmail";
-const { OAuth2Client } = require("google-auth-library");
+import { OAuth2Client } from "google-auth-library";
+import { generateRefreshToken, generateToken } from "../utils/generateToken";
 
 export const registerUser = asyncHandler(
   async (
@@ -26,7 +27,6 @@ export const registerUser = asyncHandler(
       email,
       password,
       role,
-
     });
 
     if (error) {
@@ -34,7 +34,14 @@ export const registerUser = asyncHandler(
       return;
     }
 
-    const user = await registerUserSarvice({ username, email, password, role , picture :"" , sing : ""  });
+    const user = await registerUserService({
+      username,
+      email,
+      password,
+      role,
+      picture: "",
+      sign: "",
+    });
 
     res.status(201).json({
       message: ` User ${username} registered successfully!`,
@@ -106,25 +113,14 @@ export const generateOtp = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {
     const { email } = req.body;
 
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      res.status(400).json({
-        message: "User not found",
-      });
-      return;
-    }
 
     const otp = crypto.randomInt(100000, 999999).toString();
-    user.otp = otp;
-    user.expiresAt = new Date(Date.now() + 5 * 60 * 1000);
-    await user.save();
 
     await sendOtp(email, otp);
 
     res.status(201).json({ message: "OTP sent to email" });
   }
-);
+); 
 
 export const verifyOtp = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {
@@ -156,45 +152,87 @@ export const verifyOtp = asyncHandler(
 
 export const googleAuth = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {
-    console.log("controller in google auth..............");
-
-    // console.log("req.body", req.body);
+    console.log("controller in google auth...");
+    console.log("Request body:", req.body);
 
     const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-    const body = req.body;
+    const { credential } = req.body;
 
-    if (!body) {
-      res.status(404).json({ message: "Body not found" });
+    if (!credential) {
+      console.log("No credential provided");
+      res.status(400).json({ message: "Google credential is required" });
+      return;
     }
+    res.cookie('test', 'hello', { httpOnly: false });
 
-    // Verify Google token
-    const ticket = await client.verifyIdToken({
-      idToken: body.credential,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
+    try {
+      console.log("Verifying id_token...");
+      const ticket = await client.verifyIdToken({
+        idToken: credential,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+      const payload = ticket.getPayload();
+      if (!payload?.email) {
+        console.log("No email in payload");
+        res.status(400).json({ message: "Invalid Google token payload" });
+        return;
+      }
 
-    // Get payload from verified token
-    const payload = ticket.getPayload();
+      const { email, picture, name } = payload;
+      console.log("Google fetched payload:", { email, name, picture });
 
-    // Now we can trust this data as it's verified by Google
-    const { email, picture, name } = payload;
+      const user = await registerUserService({
+        username: name || "Google User",
+        email: email || "default@example.com",
+        role: "user",
+        password: "",
+        picture: picture || "",
+        sign: "google",
+      });
 
-    console.log("google fetched payload", email);
+      console.log("Google user created:", user);
 
-  const user = await registerUserSarvice({
-  username: name,
-  email,
-  role: "user", 
-  password : "",
-  picture,
-  sing:"google"
-});
+      const userRole: "user" | "owner" | "admin" = user.role ?? "user";
+      const userEmail: string = user.email ?? "default@example.com";
+      const userUsername: string = user.username ?? "Google User";
 
+      const tokenPayload: UserPayload = {
+        _id: user.id,
+        email: userEmail,
+        role: userRole,
+        picture: user.picture ?? "",
+        username: userUsername,
+      };
 
-console.log('google user created ',user)
+      const accessToken = generateToken(tokenPayload);
+      const refreshToken = generateRefreshToken(tokenPayload);
+      console.log(accessToken)
+      console.log(refreshToken)
 
-    res.status(201).json({ message: "Googe Auth done" ,data :user});
-    return;
+      res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: true,
+        maxAge: 50 * 60 * 1000,
+        path: "/",
+        sameSite: "none",
+      });
+
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: true,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        path: "/",
+        sameSite: "none",
+      });
+
+      res.status(201).json({
+        message: "Google Auth successful",
+        user
+      });
+    } catch (error) {
+      console.error("Google auth error:", error);
+      res.status(401).json({ message: "Invalid or expired Google token" });
+    }
   }
 );
