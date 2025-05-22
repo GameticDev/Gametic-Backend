@@ -1,3 +1,4 @@
+
 import User from "../Model/userModel";
 import {
   RegisterUserInput,
@@ -6,8 +7,7 @@ import {
 } from "../Type/user";
 import { CustomError } from "../utils/customError";
 import {
-  genaraterefreshToken,
-  generateAccessToken,
+  generateToken,generateRefreshToken
 } from "../utils/generateToken";
 
 
@@ -17,23 +17,29 @@ export const registerUserSarvice = async ({
   email,
   password,
   role,
+  picture,
+  sing
 }: RegisterUserInput) => {
   const existingUser = await User.findOne({ email });
-
+  
   if (existingUser) {
     throw new CustomError("User already exists with this email");
   }
 
-  const user = await User.create({ username, email, password , role});
+  const user = await User.create({ username, email, password , role , picture , sing});
 
   return {
     id: user.id,
     username: user.username,
     email: user.email,
     password: user.password,
-    // role: user.role
   };
 };
+
+
+
+
+
 
 export const loginService = async ({ email, password }: LoginUserInput) => {
   const user = await User.findOne({ email });
@@ -55,11 +61,12 @@ export const loginService = async ({ email, password }: LoginUserInput) => {
     _id: user._id,
     email: user.email,
     role: user?.role || "owner", 
+    picture : "" ,
     username: user.username,
   };
 
-  const accessToken = generateAccessToken(payload);
-  const refreshToken = genaraterefreshToken(payload);
+  const accessToken = generateToken(payload);
+  const refreshToken = generateRefreshToken(payload);
 
   return {
     accessToken,

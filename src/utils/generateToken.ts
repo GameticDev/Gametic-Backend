@@ -4,7 +4,7 @@ import {UserPayload} from "../Type/user"
 
 
 
-export const generateAccessToken = (user: UserPayload): string => {
+export const generateToken = (user: UserPayload): string => {
   if (!process.env.JWT_SECRET) {
     throw new CustomError("JWT_SECRET not defined in environment");
   }
@@ -22,7 +22,7 @@ export const generateAccessToken = (user: UserPayload): string => {
 };
 
 
-export const genaraterefreshToken = (user : UserPayload): string => {
+export const generateRefreshToken = (user : UserPayload): string => {
 
     if(!process.env.REFRESH_TOKEN_SECRET){
         throw new CustomError("REFRESH_TOKEN_SECRET not defined in environment")

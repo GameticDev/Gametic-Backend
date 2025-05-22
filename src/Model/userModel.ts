@@ -1,13 +1,16 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
 import bcrypt from 'bcrypt';
+import { string } from 'joi';
 
 export interface IUser {
   username: string;
   email: string;
   password: string;
+  picture : string ;
   isBlocked?: boolean;
   role?: 'user' | 'owner' | 'admin';
   otp : string ;
+  sing : string ;
   expiresAt : Date | null
 }
 
@@ -21,19 +24,23 @@ const userSchema: Schema<IUserDocument> = new Schema(
   {
     username: {
       type: String,
-      required: true,
       trim: true,
-      unique: true,
     },
     email: {
       type: String,
-      required: true,
+      // required: true,
       trim: true,
       unique: true,
     },
     password: {
       type: String,
-      required: true,
+      // required: true,
+    },
+    picture:{
+      type :String ,
+    },
+    sing:{
+      type:String
     },
     isBlocked: {
       type: Boolean,
