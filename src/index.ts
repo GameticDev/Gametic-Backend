@@ -31,10 +31,6 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
-//owner apis
-app.use("/api", userRouter);
-app.use("/api/admin", adminRoute);
-app.use("/api/owner", ownerRoute);
 
 app.get("/hello", (req, res) => {
   res.json("www");
