@@ -66,12 +66,28 @@ export const turfById=asyncErrorhandler(async(req:Request,res:Response)=>{
 })
 
 
-export const getAllturf=asyncErrorhandler(async(req:Request,res:Response)=>{
+// export const getAllturf=asyncErrorhandler(async(req:Request,res:Response)=>{
     
-    const allTurf=await Turff.find()
+//     const allTurf=await Turff.find()
+
+//     return res.status(200).json({
+//         message:"All Turff details fetched successfully",
+//         allTurf
+//     })
+// })
+
+export const getAllturf = asyncErrorhandler(async (req: Request, res: Response) => {
+    const page = parseInt(req.query.page as string) || 1; // Default to page 1
+    const limit = 6;
+    const skip = (page - 1) * limit;
+
+    const allTurf = await Turff.find().skip(skip).limit(limit);
+    const total = await Turff.countDocuments(); // To help in frontend pagination
 
     return res.status(200).json({
-        message:"All Turff details fetched successfully",
+        message: "All Turff details fetched successfully",
+        totalPages: Math.ceil(total / limit),
+        currentPage: page,
         allTurf
-    })
-})
+    });
+});
