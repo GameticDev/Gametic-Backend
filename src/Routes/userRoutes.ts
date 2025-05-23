@@ -1,16 +1,18 @@
 import express from "express";
-import { loginUser, registerUser , generateOtp , verifyOtp , logOut , googleAuth} from "../Controller/userController";
+import { loginUser , logOut , googleAuth,emailVerification, verifyOtp, } from "../Controller/userController";
 
 const router = express.Router();
 
 
-router.post("/register", registerUser);
+// router.post("/register", registerUser);
+
+router.post('/emailverification' , emailVerification )
 
 router.post('/login' , loginUser)
 
 router.post("/logout" , logOut )
 
-router.post('/genaraetotp' , generateOtp)
+// router.post('/genaraetotp' , generateOtp)
 
 router.post('/verifyotp' , verifyOtp)
 

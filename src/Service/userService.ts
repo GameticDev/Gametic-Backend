@@ -12,7 +12,7 @@ import {
 
 
 
-export const registerUserSarvice = async ({
+export const googleRegister = async ({
   username,
   email,
   password,
@@ -26,6 +26,7 @@ export const registerUserSarvice = async ({
     throw new CustomError("User already exists with this email");
   }
 
+
   const user = await User.create({ username, email, password , role , picture , sing});
 
   return {
@@ -35,6 +36,8 @@ export const registerUserSarvice = async ({
     password: user.password,
   };
 };
+
+
 
 
 

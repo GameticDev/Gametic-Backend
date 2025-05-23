@@ -13,8 +13,7 @@ route
   .get("/users", getAllUsers)
   .patch("/block-user/:id", blockUser)
   .delete("/delete-user/:id", deleteUser)
-
-  //Handling Venues
+  //Handling Venues 
   .get('/venues',getAllVenues)
 
 export default route;

@@ -43,7 +43,7 @@ app.get("/hello", (req, res) => {
 //owner apis
 app.use("/api/admin", adminRoute);
 app.use("/api/owner", ownerRoute);
-app.use("/api", userRouter);
+// app.use("/api", userRouter);
 app.get("/hello", (req, res) => {
   res.json("www");
 });
