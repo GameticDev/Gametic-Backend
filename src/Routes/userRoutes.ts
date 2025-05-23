@@ -4,8 +4,7 @@ import { loginUser , logOut , googleAuth,emailVerification, verifyOtp, } from ".
 const router = express.Router();
 
 
-// router.post("/register", registerUser);
-
+// router.post("/register", registerUser)
 router.post('/emailverification' , emailVerification )
 
 router.post('/login' , loginUser)
