@@ -11,7 +11,7 @@ const storage = new CloudinaryStorage({
   params: async () => ({
     folder: 'Turf',
     allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
-    resource_type:'image'
+    resource_type:'images'
   }),
 });
 

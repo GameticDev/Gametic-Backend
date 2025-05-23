@@ -4,10 +4,10 @@ import upload from '../Middleware/uploadMulter';
 const ownerRoute=express()
 
 
-ownerRoute.post('/addTurf',upload.array('image',5),createTurf)
+ownerRoute.post('/addTurf',upload.array('images',5),createTurf)
 ownerRoute.delete('/deleteTurf/:id',deleteTurf)
 
-ownerRoute.patch('/editTurf/:id',upload.array('image',5),editTurf)
+ownerRoute.patch('/editTurf/:id',upload.array('images',5),editTurf)
 ownerRoute.get('/getAllturf',getAllturf)
 ownerRoute.get('/getTurf/:id',turfById)
 

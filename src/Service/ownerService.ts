@@ -1,25 +1,36 @@
-import Turff, { TurffData } from './../Model/turfModel';
+import Turff ,{TurffData}from "../Model/turfModel";
 
 
 export const turfService=async(data:TurffData,filepaths:string[]):Promise<TurffData>=>{
 
-    const{name,city,area,address,turfType,size,image,hourlyRate,availability,status}=data
+    const{ownerId,name,city,area,location,turfType,size,images,hourlyRate,availability,status}=data
 
     const newTurf=new Turff({
-        // ownerId,
+          ownerId,
         name,
         city,
         area,
-        address,
+        location,
         turfType,
         size,
-        image:filepaths,
+        images:filepaths,
         hourlyRate,
         availability,
+      
         status
     })
   const savedTurf=await newTurf.save()
   return savedTurf;
+}
+
+
+
+
+export const editTurfService=async(id:string,data:TurffData)=>{
+
+  const updateData=await Turff.findByIdAndUpdate(id,{$set:{...data,isDelete:false}},{new:true})
+
+  return updateData;
 }
 
 
@@ -29,9 +40,3 @@ export const deleteTurfService=async(id:string)=>{
 }
 
 
-export const editTurfService=async(id:string,data:TurffData)=>{
-
-  const updateData=await Turff.findByIdAndUpdate(id,{$set:{...data,isDelete:false}},{new:true})
-
-  return updateData;
-}
