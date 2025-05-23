@@ -3,14 +3,18 @@ import {
   blockUser,
   deleteUser,
   getAllUsers,
-  updateUsers,
 } from "../Controller/adminController";
+import { getAllVenues } from "../Controller/admin/venueController";
 const route = express.Router();
 
 route
+
+//Handling Users
   .get("/users", getAllUsers)
-  .put("/update-user/:id", updateUsers)
   .patch("/block-user/:id", blockUser)
-  .delete("/delete-user/:id", deleteUser);
+  .delete("/delete-user/:id", deleteUser)
+
+  //Handling Venues
+  .get('/venues',getAllVenues)
 
 export default route;
