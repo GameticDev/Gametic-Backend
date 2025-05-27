@@ -2,9 +2,9 @@ export interface RegisterUserInput {
   username: string;
   email: string;
   password: string;
-  role:string;
+  role: "user" | "owner" | "admin";
   picture: string;
-  sing : string 
+  sign : string 
 }
 
 
@@ -17,9 +17,9 @@ export interface LoginUserInput {
 export interface UserPayload {
   _id: string;
   email: string;
-  role: string;
+  role: "user" | "owner" | "admin";
+  picture: string;
   username: string;
-  picture : string;
 }
 
 export interface OtpDocument extends Document {
@@ -31,16 +31,3 @@ export interface OtpDocument extends Document {
 }
 
 
-
-export interface TempUserOtp {
-  email: string;
-  otp: string;
-  expiresAt: Date;
-  data: {
-    username: string;
-    password: string;
-    role: string;
-  };
-}
-
-const tempOtpStore: TempUserOtp[] = [];
