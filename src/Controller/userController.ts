@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { RegisterUserInput, UserPayload } from "../Type/user";
 import { loginValidation, registerValidation } from "../utils/userValidation";
 import { ValidationError } from "joi";
@@ -16,11 +16,11 @@ import { OAuth2Client } from "google-auth-library";
 import { generateRefreshToken, generateToken } from "../utils/generateToken";
 import OtpModel from "../Model/otpModel";
 
-
 export const registerUser = asyncHandler(
   async (
     req: Request<{}, {}, RegisterUserInput>,
-    res: Response
+    res: Response,
+    next: NextFunction
   ): Promise<void> => {
     const { username, email, password, role } = req.body;
 
@@ -32,15 +32,11 @@ export const registerUser = asyncHandler(
     });
 
     if (error) {
-      res.status(400).json({ message: error.details[0].message });
-      return;
+      return next(new CustomError(error.details[0].message, 400));
     }
-    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+    const existingUser = await User.findOne({ $or: [{ username }] });
     if (existingUser) {
-      res
-        .status(400)
-        .json({ message: "User with this email or username already exists" });
-      return;
+      return next(new CustomError("username already exists", 400));
     }
 
     const user = await registerUserService({
@@ -81,7 +77,7 @@ export const registerUser = asyncHandler(
     res.status(201).json({
       message: `User ${username} registered successfully!`,
       user,
-      role:user.role,
+      role: user.role,
       accessToken,
       refreshToken,
     });
@@ -91,20 +87,28 @@ export const registerUser = asyncHandler(
 export const loginUser = asyncHandler(
   async (
     req: Request<{}, {}, RegisterUserInput>,
-    res: Response
+    res: Response,
+    next: NextFunction
   ): Promise<void> => {
     const { email, password } = req.body;
     const { error }: { error?: ValidationError } = loginValidation.validate({
       email,
       password,
     });
-    if (error) throw new CustomError(error.details[0].message, 400);
+    if (error) {
+      return next(new CustomError(error.details[0].message, 400));
+    }
 
     const { accessToken, refreshToken, user } = await loginService({
       email,
       password,
     });
-
+    res.cookie("role", user.role, {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+    });
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: true,
@@ -129,7 +133,12 @@ export const loginUser = asyncHandler(
 
 export const logOut = asyncHandler(async (req, res) => {
   await logoutService();
-
+  res.clearCookie("role", {
+    httpOnly: false, // Allow client to read for Redux sync
+    secure: process.env.NODE_ENV === "production", // Secure in production
+    sameSite: "strict",
+    path: "/",
+  });
   res.clearCookie("accessToken", {
     httpOnly: true,
     secure: true,
@@ -154,21 +163,21 @@ const generateOTP = (): string => {
 export const emailVerification = asyncHandler(
   async (
     req: Request<{}, {}, RegisterUserInput>,
-    res: Response
+    res: Response,
+    next: NextFunction
   ): Promise<void> => {
     const { email } = req.body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      throw new CustomError("User already exists");
+      return next(new CustomError("User already exists", 404));
     }
 
     const otp = generateOTP();
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
 
     await sendOtp(email, otp);
 
-    // Remove any existing OTPs for this email before saving new one
     await OtpModel.deleteMany({ email });
 
     await OtpModel.create({ email, otp, expiresAt });
@@ -178,26 +187,21 @@ export const emailVerification = asyncHandler(
 );
 
 export const verifyOtp = asyncHandler(
-  async (req: Request, res: Response): Promise<void> => {
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const { email, otp } = req.body;
-
-    console.log(typeof otp, email, "asdfghjkl;sdfghj");
 
     const existingOtp = await OtpModel.findOne({ email });
 
     if (!existingOtp) {
-      res.status(400).json({ message: "No OTP request found" });
-      return;
+      return next(new CustomError("No email verification requested", 400));
     }
 
     if (Date.now() > existingOtp.expiresAt.getTime()) {
-      res.status(400).json({ message: "OTP expired" });
-      return;
+      return next(new CustomError("OTP expired", 400));
     }
 
     if (existingOtp.otp !== otp) {
-      res.status(400).json({ message: "Invalid OTP" });
-      return;
+      return next(new CustomError("Invalid OTP", 400));
     }
 
     await OtpModel.deleteOne({ email });
@@ -205,6 +209,7 @@ export const verifyOtp = asyncHandler(
     res.status(200).json({ message: "OTP verified successfully" });
   }
 );
+//google
 export const googleAuth = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {
     console.log("controller in google auth...");
@@ -265,6 +270,12 @@ export const googleAuth = asyncHandler(
       console.log(accessToken);
       console.log(refreshToken);
 
+      res.cookie("role", "user", {
+        httpOnly: false,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        path: "/",
+      });
       res.cookie("accessToken", accessToken, {
         httpOnly: true,
         secure: true,
