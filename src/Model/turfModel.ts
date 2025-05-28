@@ -1,5 +1,6 @@
 
 import mongoose, { Document, Schema } from 'mongoose';
+import { TurfData } from '../Type/turf';
 
 export interface Rating {
   userId: mongoose.Types.ObjectId;
@@ -20,14 +21,14 @@ export interface Booking {
 }
 
 export interface TurffData extends Document{
-    // ownerId:mongoose.Types.ObjectId;
+    ownerId:mongoose.Types.ObjectId;
     name:string;
     city:string;
     area:string;
-    address:string;
+    location:string;
     turfType: 'football' | 'cricket' | 'multi-sport' | 'swimming' | 'basketball' | 'badminton' | 'tennis' | 'volleyball' | 'hockey';
     size?:string;
-    image:string[];
+    images:string[];
     availability: {
   [day: string]: { start: string; end: string }[];
 };
@@ -103,11 +104,11 @@ const bookingSchema = new Schema<Booking>({
 
 const turfSchema=new Schema<TurffData>(
     {
-        // ownerId:{
-        //     type:Schema.Types.ObjectId,
-        //     ref:'User',
-        //     required:true
-        // },
+        ownerId:{
+            type:Schema.Types.ObjectId,
+            ref:'User',
+            required:true
+        },
         name:{
             type:String,
             required:true
@@ -120,7 +121,7 @@ const turfSchema=new Schema<TurffData>(
             type:String,
             required:true
         },
-        address:{
+        location:{
             type:String,
             required:true
         },
@@ -128,12 +129,14 @@ const turfSchema=new Schema<TurffData>(
             type:String,
             // enum:['football','cricket','swimming','basketball','badminton','tennis','volleyball','hockey'],
             enum: ['football', 'cricket', 'swimming', 'basketball', 'badminton', 'tennis', 'volleyball', 'hockey', 'multi-sport'],
+            // enum: ['Football', 'Cricket', 'Swimming', 'Basketball', 'Badminton', 'Tennis', 'Volleyball', 'Hockey', 'Multi-sport'],
+
             required:true
         },
         size:{
             type:String
         },
-        image:{
+        images:{
             type:[String],
             required:true,
         },
@@ -146,11 +149,11 @@ const turfSchema=new Schema<TurffData>(
             enum:['active','inactive'],
             default:'active'
         },
-        availability:{
-            type:String,
-            required:true,
-        },
-        //  availability: { type: Schema.Types.Mixed, required: true },
+        // availability:{
+        //     type:String,
+        //     required:true,
+        // },
+         availability: { type: Schema.Types.Mixed, required: true },
      isDelete: {
       type: Boolean,
       default: false
@@ -187,3 +190,4 @@ turfSchema.pre('save', function(next) {
 const Turff = mongoose.model<TurffData>('Turf', turfSchema);
 
 export default Turff;
+
