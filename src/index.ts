@@ -7,6 +7,7 @@ import userRouter from "./Routes/userRoutes";
 import cors from "cors";
 import adminRoute from './Routes/adminRoutes'
 import upload from "./Middleware/uploadMulter";
+import manageError from "./Middleware/manageError";
 
 
 
@@ -40,17 +41,9 @@ app.get("/hello", (req, res) => {
 app.use("/api/admin", adminRoute);
 app.use("/api/owner", ownerRoute);
 app.use("/api", userRouter);
-app.get("/hello", (req, res) => {
-  res.json("www");
-});
-
-// app.use('/api/owner',upload.array('image',5),ownerRoute)
-// app.use('/api' , userRouter)
-app.get('/hello',(req,res)=>{
-  res.json("www")
-})
 
 
+app.use(manageError)
 const PORT = process.env.PORT;
 
 app.listen(PORT, () =>
