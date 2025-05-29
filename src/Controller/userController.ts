@@ -16,6 +16,7 @@ import { OAuth2Client } from "google-auth-library";
 import { generateRefreshToken, generateToken } from "../utils/generateToken";
 import OtpModel from "../Model/otpModel";
 
+
 export const registerUser = asyncHandler(
   async (
     req: Request<{}, {}, RegisterUserInput>,
@@ -34,19 +35,55 @@ export const registerUser = asyncHandler(
       res.status(400).json({ message: error.details[0].message });
       return;
     }
+    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+    if (existingUser) {
+      res
+        .status(400)
+        .json({ message: "User with this email or username already exists" });
+      return;
+    }
 
     const user = await registerUserService({
-      username,
-      email,
-      password,
+      username: username,
+      email: email,
+      password: password,
       role,
       picture: "",
-      sign: "",
+      sign: "local",
+    });
+
+    const tokenPayload: UserPayload = {
+      _id: user.id,
+      email: user.email || "",
+      role: user.role || "user",
+      picture: user.picture ?? "",
+      username: user.username || "",
+    };
+    const accessToken = generateToken(tokenPayload);
+    const refreshToken = generateRefreshToken(tokenPayload);
+
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: true,
+      maxAge: 50 * 60 * 1000,
+      path: "/",
+      sameSite: "none",
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: "/",
+      sameSite: "none",
     });
 
     res.status(201).json({
-      message: ` User ${username} registered successfully!`,
+      message: `User ${username} registered successfully!`,
       user,
+      role:user.role,
+      accessToken,
+      refreshToken,
     });
   }
 );
