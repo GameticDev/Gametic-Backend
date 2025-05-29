@@ -10,7 +10,6 @@ ownerRoute.delete('/turfs/:id', deleteTurf)
 
 
 ownerRoute.patch('/editTurf/:id',upload.array('images',5),editTurf)
-ownerRoute.patch('/editTurf/:id',upload.array('images',5),editTurf)
 ownerRoute.get('/getAllturf',getAllturf)
 ownerRoute.get('/getTurf/:id',turfById)
 
