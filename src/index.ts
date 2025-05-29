@@ -44,11 +44,6 @@ app.get("/hello", (req, res) => {
   res.json("www");
 });
 
-// app.use('/api/owner',upload.array('image',5),ownerRoute)
-// app.use('/api' , userRouter)
-app.get('/hello',(req,res)=>{
-  res.json("www")
-})
 
 
 const PORT = process.env.PORT;
