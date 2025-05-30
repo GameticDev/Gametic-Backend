@@ -9,6 +9,8 @@ import {
 } from "../Controller/userController";
 import { addPost, deletePost, getAllPost, getPostById, joinMatchPost } from "../Controller/matchPostController";
 import { createTeam } from "../Controller/teamController";
+import { createTournamentPost, getAllTournamentPost } from "../Controller/tournamentController";
+import upload from "../Middleware/uploadMulter";
 
 const router = express.Router();
 
@@ -36,6 +38,13 @@ router.patch('/deletepost/:id',deletePost)
 
 router.post('/team',createTeam)
 
+//Tournament apis
+
+// router.post('/tournament',upload.single('image'),createTournamentPost)
+
+router.post('/tournament',createTournamentPost)
+
+router.get('/getAllTournament',getAllTournamentPost)
 
 
 // router.post("/check",loginUser)
