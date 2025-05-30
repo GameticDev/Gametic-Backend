@@ -134,13 +134,7 @@ export const loginUser = asyncHandler(
 );
 
 export const logOut = asyncHandler(async (req, res) => {
-  await logoutService();
-  res.clearCookie("role", {
-    httpOnly: false, // Allow client to read for Redux sync
-    secure: process.env.NODE_ENV === "production", // Secure in production
-    sameSite: "strict",
-    path: "/",
-  });
+
   res.clearCookie("accessToken", {
     httpOnly: true,
     secure: true,
