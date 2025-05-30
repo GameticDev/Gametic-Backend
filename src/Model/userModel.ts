@@ -13,7 +13,7 @@ export interface IUser {
 
 export interface IUserDocument extends IUser, Document {
   _id: Types.ObjectId;
-  matchPassword(enteredPassword: string): Promise<boolean>; // Remove '?'
+  matchPassword(enteredPassword: string): Promise<boolean>;
 }
 
 export interface IUserModel extends Model<IUserDocument> {}
