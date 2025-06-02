@@ -7,11 +7,20 @@ import userRouter from "./Routes/userRoutes";
 import cors from "cors";
 import adminRoute from './Routes/adminRoutes'
 import upload from "./Middleware/uploadMulter";
+import manageError from "./Middleware/manageError";
 
 
 
 const app = express();
 dotenv.config();
+
+
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 if (!process.env.MONGO_URI) {
   throw new Error("MONGO_URI is not defined in environment variables");
@@ -38,19 +47,11 @@ app.get("/hello", (req, res) => {
 
 //owner apis
 app.use("/api/admin", adminRoute);
-app.use("/api/owner", ownerRoute);
+app.use("/api/", ownerRoute);
 app.use("/api", userRouter);
-app.get("/hello", (req, res) => {
-  res.json("www");
-});
-
-// app.use('/api/owner',upload.array('image',5),ownerRoute)
-// app.use('/api' , userRouter)
-app.get('/hello',(req,res)=>{
-  res.json("www")
-})
 
 
+app.use(manageError)
 const PORT = process.env.PORT;
 
 app.listen(PORT, () =>

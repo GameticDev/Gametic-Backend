@@ -67,7 +67,7 @@ export const loginService = async ({ email, password }: LoginUserInput) => {
 
   if (user.sign === "google") {
     throw new CustomError(
-      "This account uses Google authentication. Please log in with Google.",
+      "This account is linked to Google. Please sign in using your Google account.",
       400
     );
   }
