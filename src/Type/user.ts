@@ -31,4 +31,3 @@ export interface OtpDocument extends Document {
 }
 
 
-
