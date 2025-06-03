@@ -43,7 +43,7 @@ app.use(express.urlencoded({ extended: true }));
 
 //owner apis
 app.use("/api/admin", adminRoute);
-app.use("/api/owner", ownerRoute);
+app.use("/api/", ownerRoute);
 app.use("/api", userRouter);
 app.get("/hello", (req, res) => {
   res.json("www");

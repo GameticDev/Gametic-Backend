@@ -48,37 +48,53 @@ export const createTurf = asyncErrorhandler(async (req: Request, res: Response) 
     });
 });
 
+
 export const getAllturf = asyncErrorhandler(async (req: Request, res: Response) => {
-    const ownerId = req.query.ownerId; 
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = 9;
-    const skip = (page - 1) * limit;
+  const ownerId = req.query.ownerId as string | undefined;
+  const category = req.query.category as string | undefined;
+  const time = req.query.time as string | undefined;
+  const search = req.query.search as string | undefined;
 
-    // Add filter for ownerId if provided
-    // const filter = ownerId ? { ownerId } : {};
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = 9;
+  const skip = (page - 1) * limit;
 
-    const filter: any = {
-  ...(ownerId && { ownerId }),
-  isDelete: false, //hides soft-deleted turfs
-};
+  const filter: any = {
+    ...(ownerId && { ownerId }),
+    isDelete: false,
+  };
 
-    const allTurf = await Turff.find(filter)
-        .skip(skip)
-        .limit(limit)
-        .populate('bookings.userId'); 
+  if (category) {
+    filter.turfType = category;
+  }
 
-   
+  if (search) {
+    filter.$or = [
+      { name: { $regex: search, $options: "i" } },
+      { city: { $regex: search, $options: "i" } },
+      { area: { $regex: search, $options: "i" } },
+    ];
+  }
 
+  if (time) {
+    filter["availability.timeSlots"] = time;
+  }
 
-    const total = await Turff.countDocuments(filter);
+  const allTurf = await Turff.find(filter)
+    .skip(skip)
+    .limit(limit)
+    .populate("bookings.userId");
 
-    return res.status(200).json({
-        message: "Turf details fetched successfully",
-        totalPages: Math.ceil(total / limit),
-        currentPage: page,
-        turf: allTurf
-    });
+  const total = await Turff.countDocuments(filter);
+
+  return res.status(200).json({
+    message: "Turf details fetched successfully",
+    totalPages: Math.ceil(total / limit),
+    currentPage: page,
+    turf: allTurf,
+  });
 });
+
 
 
 export const deleteTurf=asyncErrorhandler(async(req:Request,res:Response)=>{
