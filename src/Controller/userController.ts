@@ -104,13 +104,14 @@ export const loginUser = asyncHandler(
       email,
       password,
     });
-  console.log(accessToken)
+  console.log(accessToken,refreshToken,user,"accessToken,refreshToken,user................")
     res.cookie("role", user.role, {
       httpOnly: false,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       path: "/",
     });
+
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: true,
