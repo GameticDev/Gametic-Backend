@@ -22,6 +22,7 @@ export const registerUser = asyncHandler(
     res: Response,
     next: NextFunction
   ): Promise<void> => {
+    console.log(req.body)
     const { username, email, password, role } = req.body;
 
     const { error }: { error?: ValidationError } = registerValidation.validate({
@@ -103,12 +104,14 @@ export const loginUser = asyncHandler(
       email,
       password,
     });
+  console.log(accessToken,refreshToken,user,"accessToken,refreshToken,user................")
     res.cookie("role", user.role, {
       httpOnly: false,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       path: "/",
     });
+
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: true,
@@ -167,10 +170,17 @@ export const emailVerification = asyncHandler(
       return next(new CustomError("User already exists", 404));
     }
 
+
     const otp = generateOTP();
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+    console.log(otp)
 
-    await sendOtp(email, otp);
+    try{
+      const send = await sendOtp(email, otp);
+      console.log(send,"send")
+    }catch(error){
+      console.log(error,"hiii")
+    }
 
     await OtpModel.deleteMany({ email });
 
@@ -183,6 +193,7 @@ export const emailVerification = asyncHandler(
 export const verifyOtp = asyncHandler(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const { email, otp } = req.body;
+    console.log(req.body)
 
     const existingOtp = await OtpModel.findOne({ email });
 

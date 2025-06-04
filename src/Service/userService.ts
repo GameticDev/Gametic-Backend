@@ -53,7 +53,7 @@ export const registerUserService = async ({
 
 export const loginService = async ({ email, password }: LoginUserInput) => {
   const user = await User.findOne({ email: email.toLowerCase() });
-
+  console.log(user,"Abhay")
   if (!user) {
     throw new CustomError("User not found", 404);
   }
@@ -73,6 +73,7 @@ export const loginService = async ({ email, password }: LoginUserInput) => {
   }
 
   const isMatch = await user.matchPassword(password);
+  console.log(isMatch)
   if (!isMatch) {
     throw new CustomError("Invalid password", 401);
   }
@@ -92,6 +93,7 @@ export const loginService = async ({ email, password }: LoginUserInput) => {
     accessToken,
     refreshToken,
     user: {
+      id:user._id,
       username: user.username,
       email: user.email,
       role: user.role,
