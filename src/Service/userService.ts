@@ -1,5 +1,5 @@
 import User, { IUserDocument } from "../Model/userModel";
-import { RegisterUserInput, LoginUserInput, UserPayload } from "../Type/user";
+import { RegisterUserInput, LoginUserInput, UserPayload ,UpdateUserData } from "../Type/user";
 import { CustomError } from "../utils/customError";
 import { generateToken, generateRefreshToken } from "../utils/generateToken";
 
@@ -53,7 +53,7 @@ export const registerUserService = async ({
 
 export const loginService = async ({ email, password }: LoginUserInput) => {
   const user = await User.findOne({ email: email.toLowerCase() });
-
+  console.log(user,"Abhay")
   if (!user) {
     throw new CustomError("User not found", 404);
   }
@@ -73,6 +73,7 @@ export const loginService = async ({ email, password }: LoginUserInput) => {
   }
 
   const isMatch = await user.matchPassword(password);
+  console.log(isMatch)
   if (!isMatch) {
     throw new CustomError("Invalid password", 401);
   }
@@ -92,6 +93,7 @@ export const loginService = async ({ email, password }: LoginUserInput) => {
     accessToken,
     refreshToken,
     user: {
+      id:user._id,
       username: user.username,
       email: user.email,
       role: user.role,
@@ -102,3 +104,18 @@ export const loginService = async ({ email, password }: LoginUserInput) => {
 export const logoutService = () => {
   return true;
 };
+
+export const updateUserService = async (userId : string , data : UpdateUserData , file  ?: Express.Multer.File) => {
+  const user = await User.findById(userId)
+  if(!user) return "User not found"
+
+  if(data.username) user.username = data.username
+  if(data.password) user.password = data.password
+
+  if(file?.path){
+    user.picture = file.path
+  }
+
+  await user.save()
+  return user
+}

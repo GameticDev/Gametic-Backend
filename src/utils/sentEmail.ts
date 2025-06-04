@@ -107,7 +107,13 @@ export const sendOtp = async (email: string, otp: string): Promise<void> => {
     </table>
 </body>`,
   };
+try{
 
-  await transporter.sendMail(mailOptions);
-  console.log("OTP sent successfully");
+    const maile = await transporter.sendMail(mailOptions);
+    console.log(maile,"mail sucess")
+    console.log("OTP sent successfully");
+}catch(error){
+    console.log(error, "send errer")
+}
+
 };

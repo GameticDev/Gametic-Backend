@@ -22,6 +22,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+
 if (!process.env.MONGO_URI) {
   throw new Error("MONGO_URI is not defined in environment variables");
 }
@@ -40,18 +41,15 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
-
+//owner apis
+app.use("/api/admin", adminRoute);
+app.use("/api/", ownerRoute);
+app.use("/api", userRouter);
 app.get("/hello", (req, res) => {
   res.json("www");
 });
 
-//owner apis
-app.use("/api/admin", adminRoute);
-app.use("/api/owner", ownerRoute);
-app.use("/api", userRouter);
 
-
-app.use(manageError)
 const PORT = process.env.PORT;
 
 app.listen(PORT, () =>

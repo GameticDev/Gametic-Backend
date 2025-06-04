@@ -74,7 +74,7 @@ userSchema.methods.matchPassword = async function (
   enteredPassword: string
 ): Promise<boolean> {
   if (!this.password) {
-    return false; // No password for Google users
+    return false; 
   }
   return await bcrypt.compare(enteredPassword, this.password);
 };

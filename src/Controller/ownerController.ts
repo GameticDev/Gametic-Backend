@@ -48,37 +48,53 @@ export const createTurf = asyncErrorhandler(async (req: Request, res: Response) 
     });
 });
 
+
 export const getAllturf = asyncErrorhandler(async (req: Request, res: Response) => {
-    const ownerId = req.query.ownerId; 
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = 9;
-    const skip = (page - 1) * limit;
+  const ownerId = req.query.ownerId as string | undefined;
+  const category = req.query.category as string | undefined;
+  const time = req.query.time as string | undefined;
+  const search = req.query.search as string | undefined;
 
-    // Add filter for ownerId if provided
-    // const filter = ownerId ? { ownerId } : {};
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = 9;
+  const skip = (page - 1) * limit;
 
-    const filter: any = {
-  ...(ownerId && { ownerId }),
-  isDelete: false, //hides soft-deleted turfs
-};
+  const filter: any = {
+    ...(ownerId && { ownerId }),
+    isDelete: false,
+  };
 
-    const allTurf = await Turff.find(filter)
-        .skip(skip)
-        .limit(limit)
-        .populate('bookings.userId'); 
+  if (category) {
+    filter.turfType = category;
+  }
 
-   
+  if (search) {
+    filter.$or = [
+      { name: { $regex: search, $options: "i" } },
+      { city: { $regex: search, $options: "i" } },
+      { area: { $regex: search, $options: "i" } },
+    ];
+  }
 
+  if (time) {
+    filter["availability.timeSlots"] = time;
+  }
 
-    const total = await Turff.countDocuments(filter);
+  const allTurf = await Turff.find(filter)
+    .skip(skip)
+    .limit(limit)
+    .populate("bookings.userId");
 
-    return res.status(200).json({
-        message: "Turf details fetched successfully",
-        totalPages: Math.ceil(total / limit),
-        currentPage: page,
-        turf: allTurf
-    });
+  const total = await Turff.countDocuments(filter);
+
+  return res.status(200).json({
+    message: "Turf details fetched successfully",
+    totalPages: Math.ceil(total / limit),
+    currentPage: page,
+    turf: allTurf,
+  });
 });
+
 
 
 export const deleteTurf=asyncErrorhandler(async(req:Request,res:Response)=>{
@@ -153,61 +169,3 @@ export const turfById=asyncErrorhandler(async(req:Request,res:Response)=>{
         Turf
     })
 })
-
-
-
-
-// export const editTurf=asyncErrorhandler(async(req:Request,res:Response)=>{
-//     const data=req.body;
-
-//     const{id}=req.params;
-    
-// if(!data||!id){
-//         throw new CustomError("data or id not found",404)
-//     }
-//     const turf=await editTurfService(id,data)
-
-//     return res.status(200).json({
-//         message:"Turf Edited successfully",
-//         turf
-//     })
-// })
-
-// export const getAllturf = asyncErrorhandler(async (req: Request, res: Response) => {
-//     const page = parseInt(req.query.page as string) || 1; // Default to page 1
-//     const limit = 6;
-//     const skip = (page - 1) * limit;
-
-//     const allTurf = await Turff.find().skip(skip).limit(limit);
-//     const total = await Turff.countDocuments(); // To help in frontend pagination
-
-//     return res.status(200).json({
-//         message: "All Turff details fetched successfully",
-//         totalPages: Math.ceil(total / limit),
-//         currentPage: page,
-//         allTurf
-//     });
-// });
-
-// export const createTurf=asyncErrorhandler(async(req:Request,res:Response)=>{
-//     const data=req.body;
-//     const files=req.files as (Express.Multer.File & { path: string })[];
-//     if(!data||!files ){
-//         throw  new CustomError("data or file not found",404)
-//     }
-
-//     // Ensure required fields are present
-//     if (!data.name || !data.city || !data.area || !data.address || !data.turfType || !data.hourlyRate) {
-//         throw new CustomError("Missing required fields", 400);
-//     }
-//       const imageUrls = files.map((file) => file.path);
-
-//     const Turf=await turfService(data,imageUrls)
-
-//     return res.status(200).json({
-//         message:"Turff added successfully",
-//         Turf
-//     })
-// })
-
-
