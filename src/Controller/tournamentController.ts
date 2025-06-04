@@ -21,14 +21,15 @@ export const createTournamentPost = asyncErrorhandler(async (req: Request, res: 
     joinedTeams,
     prizePool,
     createdBy,
+    image
     
   } = req.body;
 
-//   const file = req.file;
-// console.log(file,"fileeeeeeeee")
-//   if (!file) {
-//     throw new CustomError("Image file is missing", 400);
-//   }
+  const file = req.file;
+console.log(file,"fileeeeeeeee")
+  if (!file) {
+    throw new CustomError("Image file is missing", 400);
+  }
 
 // //   const createdBy = req.user?._id; // assumes you are using auth middleware
 //  if (!file) {
@@ -38,16 +39,55 @@ export const createTournamentPost = asyncErrorhandler(async (req: Request, res: 
   // ✅ Normalize joinedTeams into an array
   let parsedJoinedTeams: mongoose.Types.ObjectId[] = [];
 
-  if (joinedTeams) {
-    const raw = Array.isArray(joinedTeams) ? joinedTeams : [joinedTeams];
+ 
 
-    parsedJoinedTeams = raw.map((id) => {
-      if (!mongoose.Types.ObjectId.isValid(id)) {
-        throw new CustomError(`Invalid Team ID: ${id}`, 400);
+
+  // if (joinedTeams) {
+  //   const raw = Array.isArray(joinedTeams) ? joinedTeams : [joinedTeams];
+
+  //   parsedJoinedTeams = raw.map((id) => {
+  //     if (!mongoose.Types.ObjectId.isValid(id)) {
+  //       throw new CustomError(`Invalid Team ID: ${id}`, 400);
+  //     }
+  //     return new mongoose.Types.ObjectId(id);
+  //   });
+  // }
+
+if (joinedTeams) {
+  let raw: string[] = [];
+
+  if (typeof joinedTeams === "string") {
+    try {
+      const parsed = JSON.parse(joinedTeams);
+
+      if (Array.isArray(parsed)) {
+        raw = parsed;
+      } else if (typeof parsed === "string") {
+        raw = parsed.split(",").map((id) => id.trim());
+      } else {
+        raw = [parsed];
       }
-      return new mongoose.Types.ObjectId(id);
-    });
+    } catch {
+      // Not JSON, treat as comma-separated string
+      raw = joinedTeams.split(",").map((id) => id.trim());
+    }
+  } else if (Array.isArray(joinedTeams)) {
+    raw = joinedTeams;
+  } else {
+    raw = [joinedTeams];
   }
+
+  parsedJoinedTeams = raw.map((id) => {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new CustomError(`Invalid Team ID: ${id}`, 400);
+    }
+    return new mongoose.Types.ObjectId(id);
+  });
+}
+
+
+
+
   const tournamentData = {
     title,
     description,
@@ -59,8 +99,8 @@ export const createTournamentPost = asyncErrorhandler(async (req: Request, res: 
     entryFee: Number(entryFee),
     prizePool: Number(prizePool),
      joinedTeams: parsedJoinedTeams,
-     createdBy:createdBy
-    // image: file.path || file.filename,
+     createdBy:createdBy,
+    image: file.path || file.filename,
   };
 
   const post = await tournamentService(tournamentData);

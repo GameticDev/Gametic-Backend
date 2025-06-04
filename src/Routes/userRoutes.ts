@@ -40,9 +40,9 @@ router.post('/team',createTeam)
 
 //Tournament apis
 
-// router.post('/tournament',upload.single('image'),createTournamentPost)
+ router.post('/tournament',upload.single('image'),createTournamentPost)
 
-router.post('/tournament',createTournamentPost)
+// router.post('/tournament',createTournamentPost)
 
 router.get('/getAllTournament',getAllTournamentPost)
 
