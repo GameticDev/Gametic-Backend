@@ -30,4 +30,8 @@ export interface OtpDocument extends Document {
   expiresAt: Date;
 }
 
+export interface UpdateUserData {
+  username?: string;
+  password?: string;
+}
 

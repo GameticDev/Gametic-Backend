@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { RegisterUserInput, UserPayload } from "../Type/user";
+import {  RegisterUserInput, UserPayload } from "../Type/user";
 import { loginValidation, registerValidation } from "../utils/userValidation";
 import { ValidationError } from "joi";
 import asyncHandler from "../Middleware/asyncHandler";
@@ -7,6 +7,7 @@ import {
   loginService,
   registerUserService,
   logoutService,
+  updateUserService,
 } from "../Service/userService";
 import { CustomError } from "../utils/customError";
 import User from "../Model/userModel";
@@ -294,5 +295,25 @@ export const googleAuth = asyncHandler(
       console.error("Google auth error:", error);
       res.status(401).json({ message: "Invalid or expired Google token" });
     }
+  }
+);
+
+
+export const updateUser = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    console.log("hi");
+    
+    const _id = "682f6fc463226848c8393801"
+    const {  username,  password} = req.body;
+    const file = req.file
+
+    console.log(file )
+    const updateUser = await updateUserService(_id , { username  , password } , file)
+
+    console.log(updateUser ," hh");
+    
+    res.status(200).json({
+      message: "User update successfully"
+    })
   }
 );
