@@ -6,6 +6,7 @@ import {
   logOut,
   googleAuth,
   emailVerification,
+  updateUser,
 } from "../Controller/userController";
 import {
   addPost,
@@ -55,9 +56,11 @@ router.get("/postById/:id", getPostById);
 router.post("/postById/:id/join", joinMatchPost);
 
 router.patch("/deletepost/:id", deletePost);
+router.post('/updateprofile'  ,upload.single('picture') , updateUser )
+
 
 router.post("/team", createTeam);
 
-// router.post("/check",loginUser)
+ router.post("/check",loginUser)
 
 export default router;
