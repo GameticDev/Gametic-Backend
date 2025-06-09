@@ -60,10 +60,6 @@ const matchPostSchema=new Schema<MatchPost>({
     type:Number,
     required:true
    },
-   location:{
-    type:String,
-    required:true
-   },
    status:{
     type:String,
     enum:['open','full','completed','cancelled'],
