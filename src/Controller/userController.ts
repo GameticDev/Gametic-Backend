@@ -75,7 +75,7 @@ export const registerUser = asyncHandler(
       path: "/",
       sameSite: "none",
     });
-
+console.log(user,"user in login page")
     res.status(201).json({
       message: `User ${username} registered successfully!`,
       user,
