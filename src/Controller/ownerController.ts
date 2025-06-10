@@ -1,10 +1,11 @@
 
 import { Request, Response } from "express";
-// import asyncHandler from "../Middleware/asyncHandler";
 import { CustomError } from "../utils/customError";
 import { deleteTurfService, editTurfService, turfService } from "../Service/ownerService";
 import Turff from "../Model/turfModel";
+import { Booking } from "../Model/bookingModel";
 import { asyncErrorhandler } from "../Middleware/asyncErrorHandler";
+import User from "../Model/userModel";
 
 
 export const createTurf = asyncErrorhandler(async (req: Request, res: Response) => {
@@ -56,7 +57,7 @@ export const getAllturf = asyncErrorhandler(async (req: Request, res: Response) 
   const search = req.query.search as string | undefined;
 
   const page = parseInt(req.query.page as string) || 1;
-  const limit = 9;
+  const limit = 6;
   const skip = (page - 1) * limit;
 
   const filter: any = {
@@ -83,15 +84,32 @@ export const getAllturf = asyncErrorhandler(async (req: Request, res: Response) 
   const allTurf = await Turff.find(filter)
     .skip(skip)
     .limit(limit)
-    .populate("bookings.userId");
+//     .populate({
+//   path: "bookings",
+//   populate: { path: "userId", select: "name email phone picture" ,}
+// })
+.populate({
+  path: "bookings.userId",
+  select: "name email phone picture"
+})
+
+    
 
   const total = await Turff.countDocuments(filter);
+
+  if (allTurf.length > 0 && allTurf[0].bookings?.length > 0) {
+    console.log('Sample populated booking:', {
+      turfId: allTurf[0]._id,
+      bookingUserId: allTurf[0].bookings[0].userId
+    });
+  }
 
   return res.status(200).json({
     message: "Turf details fetched successfully",
     totalPages: Math.ceil(total / limit),
     currentPage: page,
     turf: allTurf,
+     totalCount: total,
   });
 });
 
@@ -169,3 +187,73 @@ export const turfById=asyncErrorhandler(async(req:Request,res:Response)=>{
         Turf
     })
 })
+
+
+
+export const updateUserProfile = async (req: Request, res: Response): Promise<void> => {
+  const userId = req.params.id;
+
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        $set: {
+          username: req.body.username,
+          email: req.body.email,
+          phone: req.body.phone,
+          location: req.body.location,
+          bio: req.body.bio,
+          businessName: req.body.businessName
+        },
+      },
+      { new: true }
+    );
+
+     if (!updatedUser) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+   res.status(200).json({ user: updatedUser });
+
+  } catch (err: any) {
+    res.status(500).json({ message: err.message || "Internal Server Error" });
+  }
+};
+
+export const updateBookingStatus = asyncErrorhandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  console.log('Received status update:', { id, status });
+
+  if (!["pending", "confirmed", "cancelled", "completed"].includes(status)) {
+    console.log('Invalid status value:', status);
+    throw new CustomError("Invalid status value", 400);
+  }
+
+  // Update booking inside Turf's bookings array using positional operator $
+  const turf = await Turff.findOneAndUpdate(
+    { "bookings._id": id },
+    { $set: { "bookings.$.status": status } },
+    { new: true }
+  // ).populate("bookings.userId"); 
+  ).populate("bookings.userId", "name email phone picture");
+
+
+  if (!turf) {
+    console.log("Booking not found for id:", id);
+    throw new CustomError("Booking not found", 404);
+  }
+ console.log('Booking updated:', turf);
+
+  const updatedBooking = turf.bookings.find(b => b.id.toString() === id);
+  console.log('Updated booking with user:', {
+    status: updatedBooking?.status,
+    user: updatedBooking?.userId
+  });
+
+  return res.status(200).json({
+    message: "Booking status updated successfully",
+    turf,
+  });
+});
