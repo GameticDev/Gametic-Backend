@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc --build",
-    "start": "node --max-old-space-size=4096 index.ts",
+     "start": "node --max-old-space-size=4096 index.js",
     "dev": "nodemon ./src/index.ts"
   },
   "keywords": [],
@@ -14,19 +14,30 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cloudinary": "^1.41.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "crypto": "^1.0.1",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
-    "mongoose": "^8.14.2"
+    "google-auth-library": "^9.15.1",
+    "joi": "^17.13.3",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.14.2",
+    "multer": "^1.4.5-lts.2",
+    "multer-storage-cloudinary": "^4.0.0",
+    "nodemailer": "^7.0.3",
+    "razorpay": "^2.9.6"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/bcryptjs": "^2.4.6",
     "@types/cookie-parser": "^1.4.8",
-    "@types/cors": "^2.8.19",
+    "@types/cors": "^2.8.18",
     "@types/express": "^5.0.1",
-    "@types/joi": "^17.2.2",
     "@types/jsonwebtoken": "^9.0.9",
-    "@types/multer": "^1.4.13",
+    "@types/multer": "^1.4.12",
     "@types/nodemailer": "^6.4.17",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
