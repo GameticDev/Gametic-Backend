@@ -7,13 +7,13 @@ import {
   googleAuth,
   emailVerification,
   updateUser,
+  // loginedUser,
 } from "../Controller/userController";
 import { addPost, deletePost, getAllPost, getPostById, joinMatchPost } from "../Controller/matchPostController";
 import { createTeam } from "../Controller/teamController";
 import upload from "../Middleware/uploadMulter";
 import { authMiddleware, verifyAdmin, verifyOwner } from "../Middleware/auth";
-
-
+console.log(authMiddleware ,"user")
 
 const router = express.Router();
 
@@ -30,7 +30,7 @@ router.post("/verifyotp", verifyOtp);
 router.post("/auth/google", googleAuth);
 
 router.post('/addMatch',addPost)
-router.get('/getAllPost', getAllPost )
+router.get('/getAllPost', authMiddleware , getAllPost  )
 
 router.get('/postById/:id',getPostById)
 
@@ -43,7 +43,7 @@ router.post('/team',createTeam)
 
 router.post('/updateprofile'  ,upload.single('picture') , updateUser )
 
-
+// router.get("/me" , loginedUser)
 
  router.post("/check",loginUser)
 

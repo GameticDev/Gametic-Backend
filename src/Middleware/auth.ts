@@ -3,6 +3,7 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 import { CustomError } from '../utils/customError';
 import User from '../Model/userModel';
 
+
 interface AuthenticatedRequest extends Request {
   user?: {
     userId: string;
