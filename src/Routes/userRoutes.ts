@@ -16,6 +16,7 @@ import {
   joinMatchPost,
 } from "../Controller/matchPostController";
 import { createTeam } from "../Controller/teamController";
+console.log(authMiddleware ,"user")
 import {
   getAllMatches,
   getMatchById,
@@ -41,6 +42,8 @@ router.post("/verifyotp", verifyOtp);
 
 router.post("/auth/google", googleAuth);
 
+router.post('/addMatch',addPost)
+router.get('/getAllPost', authMiddleware , getAllPost  )
 router
   //Host
   .get("/all-matches", getAllMatches)
@@ -54,6 +57,20 @@ router
 router.post("/addMatch", addPost);
 router.get("/getAllPost", getAllPost);
 
+router.get('/postById/:id',getPostById)
+
+router.post('/postById/:id/join',joinMatchPost)
+
+router.patch('/deletepost/:id',deletePost)
+
+
+router.post('/team',createTeam)
+
+router.post('/updateprofile'  ,upload.single('picture') , updateUser )
+
+// router.get("/me" , loginedUser)
+
+ router.post("/check",loginUser)
 router.get("/postById/:id", getPostById);
 
 router.post("/postById/:id/join", joinMatchPost);
