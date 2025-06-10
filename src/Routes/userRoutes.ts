@@ -6,9 +6,23 @@ import {
   logOut,
   googleAuth,
   emailVerification,
+  updateUser,
 } from "../Controller/userController";
-import { addPost, deletePost, getAllPost, getPostById, joinMatchPost } from "../Controller/matchPostController";
+import {
+  addPost,
+  deletePost,
+  getAllPost,
+  getPostById,
+  joinMatchPost,
+} from "../Controller/matchPostController";
 import { createTeam } from "../Controller/teamController";
+import {
+  getAllMatches,
+  getMatchById,
+  hostMatch,
+  joinMatch,
+} from "../Controller/user/matchHostController";
+import { bookVenue } from "../Controller/user/venueController";
 
 const router = express.Router();
 
@@ -24,20 +38,29 @@ router.post("/verifyotp", verifyOtp);
 
 router.post("/auth/google", googleAuth);
 
-router.post('/addMatch',addPost)
-router.get('/getAllPost',getAllPost)
+router
+  //Host
+  .get("/all-matches", getAllMatches)
+  .get("/match/:matchId", getMatchById)
+  .post("/host-match", hostMatch)
+  .post("/join-match/:matchId", joinMatch)
 
-router.get('/postById/:id',getPostById)
+  //venue booking
+  .post("/venue-booking", bookVenue);
 
-router.post('/postById/:id/join',joinMatchPost)
+router.post("/addMatch", addPost);
+router.get("/getAllPost", getAllPost);
 
-router.patch('/deletepost/:id',deletePost)
+router.get("/postById/:id", getPostById);
+
+router.post("/postById/:id/join", joinMatchPost);
+
+router.patch("/deletepost/:id", deletePost);
+router.post('/updateprofile'  ,upload.single('picture') , updateUser )
 
 
-router.post('/team',createTeam)
+router.post("/team", createTeam);
 
-
-
-// router.post("/check",loginUser)
+ router.post("/check",loginUser)
 
 export default router;
