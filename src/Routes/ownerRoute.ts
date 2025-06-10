@@ -2,6 +2,7 @@ import express from 'express'
 import { createTurf, deleteTurf, editTurf, getAllturf, turfById ,updateUserProfile ,updateBookingStatus} from '../Controller/ownerController'
 import upload from '../Middleware/uploadMulter';
 import { verifyOwner } from '../Middleware/auth';
+import { verifyOwner } from '../Middleware/auth';
 const ownerRoute=express()
 
 
