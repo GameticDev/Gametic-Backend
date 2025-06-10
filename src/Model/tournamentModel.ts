@@ -8,7 +8,7 @@ export interface ITournament extends Document {
   location:string; 
   dateFrom: Date;
   dateTo: Date;
-  createdBy: mongoose.Types.ObjectId;
+  teamManager: mongoose.Types.ObjectId;
   maxTeams: number;
   joinedTeams: mongoose.Types.ObjectId[];
   entryFee: number;
@@ -25,7 +25,7 @@ const tournamentSchema = new Schema<ITournament>(
     location: String,
     dateFrom: { type: Date, required: true },
     dateTo: { type: Date, required: true },
-    createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    teamManager: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     maxTeams: { type: Number, required: true },
     joinedTeams: [{ type: Schema.Types.ObjectId, ref: 'Team' }],
     entryFee: { type: Number, required: true },

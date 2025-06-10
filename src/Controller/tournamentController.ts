@@ -4,11 +4,13 @@ import { CustomError } from "../utils/customError";
 import tournamentService from "../Service/tournamentService";
 import mongoose from "mongoose";
 import Tournament from "../Model/tournamentModel";
+import { AuthenticatedRequest } from "../Middleware/auth";
 
 
 
-export const createTournamentPost = asyncErrorhandler(async (req: Request, res: Response) => {
-    console.log(req.body,"hiuuiihjiujij")
+
+
+export const createTournamentPost = asyncErrorhandler(async (req: AuthenticatedRequest, res: Response) => {
   const {
     title,
     description,
@@ -20,73 +22,46 @@ export const createTournamentPost = asyncErrorhandler(async (req: Request, res: 
     entryFee,
     joinedTeams,
     prizePool,
-    createdBy,
     image
-    
   } = req.body;
-
+  const { userId } = req.user!;
   const file = req.file;
-console.log(file,"fileeeeeeeee")
+
   if (!file) {
     throw new CustomError("Image file is missing", 400);
   }
 
-// //   const createdBy = req.user?._id; // assumes you are using auth middleware
-//  if (!file) {
-//     throw new CustomError("Image file is missing", 400);
-//   }
-
-  // ✅ Normalize joinedTeams into an array
   let parsedJoinedTeams: mongoose.Types.ObjectId[] = [];
 
- 
+  if (joinedTeams) {
+    let raw: string[] = [];
 
-
-  // if (joinedTeams) {
-  //   const raw = Array.isArray(joinedTeams) ? joinedTeams : [joinedTeams];
-
-  //   parsedJoinedTeams = raw.map((id) => {
-  //     if (!mongoose.Types.ObjectId.isValid(id)) {
-  //       throw new CustomError(`Invalid Team ID: ${id}`, 400);
-  //     }
-  //     return new mongoose.Types.ObjectId(id);
-  //   });
-  // }
-
-if (joinedTeams) {
-  let raw: string[] = [];
-
-  if (typeof joinedTeams === "string") {
-    try {
-      const parsed = JSON.parse(joinedTeams);
-
-      if (Array.isArray(parsed)) {
-        raw = parsed;
-      } else if (typeof parsed === "string") {
-        raw = parsed.split(",").map((id) => id.trim());
-      } else {
-        raw = [parsed];
+    if (typeof joinedTeams === "string") {
+      try {
+        const parsed = JSON.parse(joinedTeams);
+        if (Array.isArray(parsed)) {
+          raw = parsed;
+        } else if (typeof parsed === "string") {
+          raw = parsed.split(",").map((id) => id.trim());
+        } else {
+          raw = [parsed];
+        }
+      } catch {
+        raw = joinedTeams.split(",").map((id) => id.trim());
       }
-    } catch {
-      // Not JSON, treat as comma-separated string
-      raw = joinedTeams.split(",").map((id) => id.trim());
+    } else if (Array.isArray(joinedTeams)) {
+      raw = joinedTeams;
+    } else {
+      raw = [joinedTeams];
     }
-  } else if (Array.isArray(joinedTeams)) {
-    raw = joinedTeams;
-  } else {
-    raw = [joinedTeams];
+
+    parsedJoinedTeams = raw.map((id) => {
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        throw new CustomError(`Invalid Team ID: ${id}`, 400);
+      }
+      return new mongoose.Types.ObjectId(id);
+    });
   }
-
-  parsedJoinedTeams = raw.map((id) => {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new CustomError(`Invalid Team ID: ${id}`, 400);
-    }
-    return new mongoose.Types.ObjectId(id);
-  });
-}
-
-
-
 
   const tournamentData = {
     title,
@@ -98,8 +73,8 @@ if (joinedTeams) {
     maxTeams: Number(maxTeams),
     entryFee: Number(entryFee),
     prizePool: Number(prizePool),
-     joinedTeams: parsedJoinedTeams,
-     createdBy:createdBy,
+    joinedTeams: parsedJoinedTeams,
+    teamManager: new mongoose.Types.ObjectId(userId),
     image: file.path || file.filename,
   };
 
@@ -107,7 +82,7 @@ if (joinedTeams) {
 
   return res.status(201).json({
     message: "Tournament created successfully",
-    post
+    post,
   });
 });
 
@@ -119,3 +94,52 @@ export const getAllTournamentPost=asyncErrorhandler(async(req:Request,res:Respon
         post
     })
 })
+
+
+
+export const tournamentById=asyncErrorhandler(async(req:Request,res:Response)=>{
+  const{id}=req.params;
+  if(!id){
+    throw new CustomError("id is not available",404)
+  }
+  const data=await  Tournament.findById(id)
+    .populate({
+      path:'joinedTeams',
+      populate:{
+        path:'teamManager',
+        select:' username email'
+      }
+    })
+
+  return res.status(200).json({
+    message:"Tournament post Fetched successfully",
+    data
+  })
+})
+
+
+
+export const joinTeamToTournament=asyncErrorhandler(async(req:Request,res:Response)=>{
+  const{id}=req.params;
+  const{teamId}=req.body;
+
+  if(!teamId){
+    throw new CustomError("invalid Team id",404)
+  }
+  const tournament=await Tournament.findById(id)
+  if(!tournament){
+    throw new CustomError('Tournament not found')
+  }
+  if(tournament.joinedTeams.includes(teamId)){
+    throw new CustomError('Team already joined',400)
+  }
+
+   await Tournament.updateOne(
+    { _id: id },
+    { $push: { joinedTeams: teamId } }
+  );
+
+  return res.status(200).json({
+    message: "Team added to Tournament"
+  });
+});
