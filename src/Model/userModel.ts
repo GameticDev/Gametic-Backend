@@ -6,6 +6,10 @@ export interface IUser {
   email: string;
   password?: string;
   picture?: string;
+  phone?:number;
+  location?:string;
+  bio?:string;
+  businessName?:string;
   sign?: string;
   isBlocked?: boolean;
   role?: "user" | "owner" | "admin";
@@ -54,6 +58,10 @@ const userSchema: Schema<IUserDocument> = new Schema(
       enum: ["user", "owner", "admin"],
       default: "user",
     },
+    phone: { type: Number },
+    location: { type: String },
+    bio: { type: String },
+    businessName: { type: String },
   },
   {
     timestamps: true,

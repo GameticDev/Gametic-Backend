@@ -9,7 +9,7 @@ export const createTeamService = async (
   teamManager: mongoose.Types.ObjectId
 ) => {
   // Basic input validation
-  if (!name || !sport || !teamManager || !Array.isArray(memberIds)) {
+  if (!name || !sport || !Array.isArray(memberIds)) {
     throw new Error('Invalid input parameters');
   }
 
@@ -23,9 +23,9 @@ export const createTeamService = async (
   ];
 
   // 2. Check if teamManager is in memberIds
-  if (uniqueMembers.includes(teamManager.toString())) {
-    throw new Error('Team leader cannot be a member of the team');
-  }
+  // if (uniqueMembers.includes(teamManager.toString())) {
+  //   throw new Error('Team leader cannot be a member of the team');
+  // }
 
   // 3. Check all users exist
   // const users = await User.find({ _id: { $in: uniqueMembers } });
