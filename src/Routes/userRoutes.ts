@@ -26,10 +26,9 @@ import {
   joinMatch,
   verifyJoinPayment,
 } from "../Controller/user/matchHostController";
-import { bookVenue } from "../Controller/user/venueController";
+import { bookVenue, getAllVenuesforUser } from "../Controller/user/venueController";
 import upload from "../Middleware/uploadMulter";
 import { authMiddleware } from "../Middleware/auth";
-import { getAllturf } from "../Controller/ownerController";
 
 const router = express.Router();
 
@@ -58,7 +57,8 @@ router
   .post("/verify-join-payment", authMiddleware, verifyJoinPayment)
 
   //venue booking
-  .post("/venue-booking", bookVenue);
+  .post("/venue-booking", bookVenue)
+  .get('/getAllVenues',getAllVenuesforUser)
 
 router.post("/addMatch", addPost);
 router.get("/getAllPost", getAllPost);
