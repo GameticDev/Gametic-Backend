@@ -7,7 +7,6 @@ import {
   googleAuth,
   emailVerification,
   updateUser,
-
 } from "../Controller/userController";
 import {
   addPost,
