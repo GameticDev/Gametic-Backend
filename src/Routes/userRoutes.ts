@@ -27,7 +27,6 @@ import {
   joinMatch,
 } from "../Controller/user/matchHostController";
 import { bookVenue } from "../Controller/user/venueController";
-import upload from "../Middleware/uploadMulter";
 
 const router = express.Router();
 
