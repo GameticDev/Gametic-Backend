@@ -119,10 +119,3 @@ export const updateUserService = async (userId : string , data : UpdateUserData 
   await user.save()
   return user
 }
-
-// export const loginedUserService = async(userId : string) => {
-//   const user = await User.findById(userId)
-//   console.log(user , "user");
-  
-//   return user
-// }

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { RegisterUserInput, UserPayload } from "../Type/user";
+import {  RegisterUserInput, UserPayload } from "../Type/user";
 import { loginValidation, registerValidation } from "../utils/userValidation";
 import { ValidationError } from "joi";
 import asyncHandler from "../Middleware/asyncHandler";
@@ -7,7 +7,7 @@ import {
   loginService,
   registerUserService,
   logoutService,
-  updateUserService,
+  updateUserService
 } from "../Service/userService";
 import { CustomError } from "../utils/customError";
 import User from "../Model/userModel";
@@ -318,7 +318,7 @@ export const updateUser = asyncHandler(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     console.log("hi");
 
-    const _id = "682f6fc463226848c8393801";
+    const _id = "68301fd02868a7c0612bbbf7";
     const { username, password } = req.body;
     const file = req.file;
 
