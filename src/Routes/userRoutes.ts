@@ -17,8 +17,6 @@ import {
   joinMatchPost,
 } from "../Controller/matchPostController";
 import { createTeam } from "../Controller/teamController";
-import upload from "../Middleware/uploadMulter";
-import { authMiddleware, verifyAdmin, verifyOwner } from "../Middleware/auth";
 console.log(authMiddleware ,"user")
 import {
   getAllMatches,
@@ -27,6 +25,9 @@ import {
   joinMatch,
 } from "../Controller/user/matchHostController";
 import { bookVenue } from "../Controller/user/venueController";
+import upload from "../Middleware/uploadMulter";
+import { createTournamentPost, getAllTournamentPost, joinTeamToTournament, tournamentById } from "../Controller/tournamentController";
+import { authMiddleware } from "../Middleware/auth";
 
 const router = express.Router();
 
@@ -76,6 +77,16 @@ router.get("/postById/:id", getPostById);
 router.post("/postById/:id/join", joinMatchPost);
 
 router.patch("/deletepost/:id", deletePost);
+
+//tournament APIs
+router.get('/getAllTournament',getAllTournamentPost)
+router.post('/createTournament',authMiddleware,upload.single('image'),createTournamentPost)
+
+router.post('/team',authMiddleware,createTeam)
+
+router.get('/tournamentById/:id',tournamentById)
+
+router.patch('/tournament/:id/join-team',joinTeamToTournament)
 router.post('/updateprofile'  ,upload.single('picture') , updateUser )
 
 
