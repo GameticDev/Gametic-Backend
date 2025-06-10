@@ -17,12 +17,19 @@ import {
 } from "../Controller/matchPostController";
 import { createTeam } from "../Controller/teamController";
 import {
+  createHostingOrder,
+  createJoinOrder,
   getAllMatches,
   getMatchById,
+  getVenueBySports,
   hostMatch,
   joinMatch,
+  verifyJoinPayment,
 } from "../Controller/user/matchHostController";
 import { bookVenue } from "../Controller/user/venueController";
+import upload from "../Middleware/uploadMulter";
+import { authMiddleware } from "../Middleware/auth";
+import { getAllturf } from "../Controller/ownerController";
 
 const router = express.Router();
 
@@ -42,8 +49,13 @@ router
   //Host
   .get("/all-matches", getAllMatches)
   .get("/match/:matchId", getMatchById)
-  .post("/host-match", hostMatch)
-  .post("/join-match/:matchId", joinMatch)
+  .post("/host-match", authMiddleware, hostMatch)
+  .post("/join-match/:matchId", authMiddleware, joinMatch)
+  .get("/turfby-sport", getVenueBySports)
+
+  .post("/create-hosting-order", authMiddleware, createHostingOrder)
+  .post("/create-join-order/:matchId", authMiddleware, createJoinOrder)
+  .post("/verify-join-payment", authMiddleware, verifyJoinPayment)
 
   //venue booking
   .post("/venue-booking", bookVenue);
@@ -56,11 +68,10 @@ router.get("/postById/:id", getPostById);
 router.post("/postById/:id/join", joinMatchPost);
 
 router.patch("/deletepost/:id", deletePost);
-router.post('/updateprofile'  ,upload.single('picture') , updateUser )
-
+router.post("/updateprofile", upload.single("picture"), updateUser);
 
 router.post("/team", createTeam);
 
- router.post("/check",loginUser)
+router.post("/check", loginUser);
 
 export default router;
