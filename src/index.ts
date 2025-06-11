@@ -22,7 +22,7 @@ dotenv.config();
 //   allowedHeaders: ['Content-Type', 'Authorization']
 // }));
 
-app.use(cors());
+// app.use(cors());
 
 
 if (!process.env.MONGO_URI) {
