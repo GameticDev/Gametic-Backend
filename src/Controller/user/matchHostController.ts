@@ -179,8 +179,8 @@ export const createHostingOrder = asyncErrorhandler(
       res.status(401).json({ message: "User not authenticated" });
       return;
     }
-
-    const amount = turf.hourlyRate;
+    const turfRate = turf.hourlyRate * 100;
+    const amount = turfRate / maxPlayers;
 
     // Create Razorpay order
     try {
@@ -383,12 +383,10 @@ export const createJoinOrder = asyncErrorhandler(
       );
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error occurred";
-      return res
-        .status(500)
-        .json({
-          message: "Failed to create payment order",
-          error: errorMessage,
-        });
+      return res.status(500).json({
+        message: "Failed to create payment order",
+        error: errorMessage,
+      });
     }
   }
 );

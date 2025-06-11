@@ -28,6 +28,7 @@ import {
 } from "../Controller/user/matchHostController";
 import {
   bookVenue,
+  createBookingOrder,
   getAllVenuesforUser,
   getVenueByIdforUser,
 } from "../Controller/user/venueController";
@@ -63,7 +64,8 @@ router
   .post("/verify-join-payment", authMiddleware, verifyJoinPayment)
 
   //venue booking
-  .post("/venue-booking", bookVenue)
+  .post("/venue-booking", authMiddleware, bookVenue)
+  .post("/create-booking-order", authMiddleware, createBookingOrder)
   .get("/getAllVenues", getAllVenuesforUser)
   .get("/veunesById/:turfId", getVenueByIdforUser);
 
