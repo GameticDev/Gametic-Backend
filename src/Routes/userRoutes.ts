@@ -16,7 +16,6 @@ import {
   joinMatchPost,
 } from "../Controller/matchPostController";
 import { createTeam } from "../Controller/teamController";
-console.log(authMiddleware ,"user")
 import {
   createHostingOrder,
   createJoinOrder,

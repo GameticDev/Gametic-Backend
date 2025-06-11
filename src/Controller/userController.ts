@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import {  RegisterUserInput, UserPayload } from "../Type/user";
+import { RegisterUserInput, UserPayload } from "../Type/user";
 import { loginValidation, registerValidation } from "../utils/userValidation";
 import { ValidationError } from "joi";
 import asyncHandler from "../Middleware/asyncHandler";
@@ -7,7 +7,7 @@ import {
   loginService,
   registerUserService,
   logoutService,
-  updateUserService
+  updateUserService,
 } from "../Service/userService";
 import { CustomError } from "../utils/customError";
 import User from "../Model/userModel";
@@ -16,8 +16,6 @@ import { sendOtp } from "../utils/sentEmail";
 import { OAuth2Client } from "google-auth-library";
 import { generateRefreshToken, generateToken } from "../utils/generateToken";
 import OtpModel from "../Model/otpModel";
-
-
 
 export const registerUser = asyncHandler(
   async (
@@ -113,27 +111,28 @@ export const loginUser = asyncHandler(
       user,
       "accessToken,refreshToken,user................"
     );
+    // Make all cookies consistent for cross-origin
     res.cookie("role", user.role, {
-      httpOnly: false,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      httpOnly: false, // Keep false if you need to access it from JS
+      secure: true,
+      sameSite: "strict", // Change this to "none"
       path: "/",
     });
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: true,
+      secure: true, // Use environment check here too
       maxAge: 50 * 60 * 1000,
       path: "/",
-      sameSite: "none",
+      sameSite: "strict",
     });
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: true,
+      secure: true, // Use environment check here too
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: "/",
-      sameSite: "none",
+      sameSite: "strict",
     });
     res.status(200).json({
       message: `Login successful! Welcome back,`,
