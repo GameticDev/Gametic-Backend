@@ -10,6 +10,7 @@ export interface Booking extends Document {
   amount: number;
   createdAt: Date;
   bookingType: "host" | "normal";
+  paymentId: string;
 }
 
 const bookingSchema = new Schema<Booking>({
@@ -53,7 +54,7 @@ const bookingSchema = new Schema<Booking>({
     enum: ["host", "normal"],
     required: true,
     default: "normal",
-  },
+  }
 });
 
 const Booking = mongoose.model<Booking>("Booking", bookingSchema);
