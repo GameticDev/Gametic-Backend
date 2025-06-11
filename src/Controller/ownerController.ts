@@ -103,7 +103,7 @@ export const getAllturf = asyncErrorhandler(async (req: Request, res: Response) 
       bookingUserId: allTurf[0].bookings[0].userId
     });
   }
-
+  console.log(allTurf,"all turf in cntrlllll")
   return res.status(200).json({
     message: "Turf details fetched successfully",
     totalPages: Math.ceil(total / limit),

@@ -16,7 +16,7 @@ export const registerUserService = async ({
   if (existingUser) {
     if (sign === "google" && existingUser.sign === "google") {
       return {
-        _yid: existingUser._id,
+        id: existingUser._id,
         username: existingUser.username,
         email: existingUser.email,
         picture: existingUser.picture,
