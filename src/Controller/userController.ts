@@ -125,7 +125,7 @@ export const loginUser = asyncHandler(
       secure: true,
       maxAge: 50 * 60 * 1000,
       path: "/",
-      sameSite: "none",
+      sameSite: "lax",
     });
 
     res.cookie("refreshToken", refreshToken, {
