@@ -26,7 +26,11 @@ import {
   joinMatch,
   verifyJoinPayment,
 } from "../Controller/user/matchHostController";
-import { bookVenue, getAllVenuesforUser } from "../Controller/user/venueController";
+import {
+  bookVenue,
+  getAllVenuesforUser,
+  getVenueByIdforUser,
+} from "../Controller/user/venueController";
 import upload from "../Middleware/uploadMulter";
 import { authMiddleware } from "../Middleware/auth";
 
@@ -44,8 +48,8 @@ router.post("/verifyotp", verifyOtp);
 
 router.post("/auth/google", googleAuth);
 
-router.post('/addMatch',addPost)
-router.get('/getAllPost', authMiddleware , getAllPost  )
+router.post("/addMatch", addPost);
+router.get("/getAllPost", authMiddleware, getAllPost);
 router
   //Host
   .get("/all-matches", getAllMatches)
@@ -60,25 +64,25 @@ router
 
   //venue booking
   .post("/venue-booking", bookVenue)
-  .get('/getAllVenues',getAllVenuesforUser)
+  .get("/getAllVenues", getAllVenuesforUser)
+  .get("/veunesById/:turfId", getVenueByIdforUser);
 
 router.post("/addMatch", addPost);
 router.get("/getAllPost", getAllPost);
 
-router.get('/postById/:id',getPostById)
+router.get("/postById/:id", getPostById);
 
-router.post('/postById/:id/join',joinMatchPost)
+router.post("/postById/:id/join", joinMatchPost);
 
-router.patch('/deletepost/:id',deletePost)
+router.patch("/deletepost/:id", deletePost);
 
+router.post("/team", createTeam);
 
-router.post('/team',createTeam)
-
-router.post('/updateprofile'  ,upload.single('picture') , updateUser )
+router.post("/updateprofile", upload.single("picture"), updateUser);
 
 // router.get("/me" , loginedUser)
 
- router.post("/check",loginUser)
+router.post("/check", loginUser);
 router.get("/postById/:id", getPostById);
 
 router.post("/postById/:id/join", joinMatchPost);

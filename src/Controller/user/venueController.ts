@@ -177,3 +177,31 @@ export const getAllVenuesforUser = asyncErrorhandler(
     });
   }
 );
+
+export const getVenueByIdforUser = asyncErrorhandler(
+  async (req: Request, res: Response) => {
+    const {turfId} = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(turfId)) {
+      res.status(400).json({ success: false, message: "Invalid turf ID" });
+      return;
+    }
+
+    const turf = await Turff.findById(turfId)
+      .populate("ownerId", "name email")
+      .populate("ratings")
+      .populate("bookings")
+      .select("-isDelete");
+
+    if (!turf || turf.isDelete) {
+      res.status(404).json({ success: false, message: "Turf not found" });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      data: turf,
+      message: "Turf retrieved successfully",
+    });
+  }
+);

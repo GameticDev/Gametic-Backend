@@ -115,7 +115,7 @@ export const loginUser = asyncHandler(
     res.cookie("role", user.role, {
       httpOnly: false, // Keep false if you need to access it from JS
       secure: true,
-      sameSite: "strict", // Change this to "none"
+      sameSite: "none", // Change this to "none"
       path: "/",
     });
 
@@ -124,7 +124,7 @@ export const loginUser = asyncHandler(
       secure: true, // Use environment check here too
       maxAge: 50 * 60 * 1000,
       path: "/",
-      sameSite: "strict",
+      sameSite: "none",
     });
 
     res.cookie("refreshToken", refreshToken, {
@@ -132,7 +132,7 @@ export const loginUser = asyncHandler(
       secure: true, // Use environment check here too
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: "/",
-      sameSite: "strict",
+      sameSite: "none",
     });
     res.status(200).json({
       message: `Login successful! Welcome back,`,
