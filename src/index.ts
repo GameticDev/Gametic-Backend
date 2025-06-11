@@ -53,8 +53,8 @@ app.use("/api", userRouter);
 // Error handling middleware (should be last)
 app.use(manageError);
 
-// FIXED: Proper port handling with fallback
-const PORT = process.env.PORT || 10000;
+// FIXED: Proper port handling with fallback (convert string to number)
+const PORT = parseInt(process.env.PORT || '10000', 10);
 
 // FIXED: Bind to 0.0.0.0 instead of localhost for Render
 const server = app.listen(PORT, '0.0.0.0', () => {
