@@ -7,7 +7,7 @@ import {
   loginService,
   registerUserService,
   logoutService,
-  updateUserService,
+  updateUserService
 } from "../Service/userService";
 import { CustomError } from "../utils/customError";
 import User from "../Model/userModel";
@@ -17,13 +17,15 @@ import { OAuth2Client } from "google-auth-library";
 import { generateRefreshToken, generateToken } from "../utils/generateToken";
 import OtpModel from "../Model/otpModel";
 
+
+
 export const registerUser = asyncHandler(
   async (
     req: Request<{}, {}, RegisterUserInput>,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
-    console.log(req.body)
+    console.log(req.body);
     const { username, email, password, role } = req.body;
 
     const { error }: { error?: ValidationError } = registerValidation.validate({
@@ -105,7 +107,12 @@ export const loginUser = asyncHandler(
       email,
       password,
     });
-  console.log(accessToken,refreshToken,user,"accessToken,refreshToken,user................")
+    console.log(
+      accessToken,
+      refreshToken,
+      user,
+      "accessToken,refreshToken,user................"
+    );
     res.cookie("role", user.role, {
       httpOnly: false,
       secure: process.env.NODE_ENV === "production",
@@ -136,7 +143,6 @@ export const loginUser = asyncHandler(
 );
 
 export const logOut = asyncHandler(async (req, res) => {
-
   res.clearCookie("accessToken", {
     httpOnly: true,
     secure: true,
@@ -171,16 +177,15 @@ export const emailVerification = asyncHandler(
       return next(new CustomError("User already exists", 404));
     }
 
-
     const otp = generateOTP();
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
-    console.log(otp)
+    console.log(otp);
 
-    try{
+    try {
       const send = await sendOtp(email, otp);
-      console.log(send,"send")
-    }catch(error){
-      console.log(error,"hiii")
+      console.log(send, "send");
+    } catch (error) {
+      console.log(error, "hiii");
     }
 
     await OtpModel.deleteMany({ email });
@@ -194,7 +199,7 @@ export const emailVerification = asyncHandler(
 export const verifyOtp = asyncHandler(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const { email, otp } = req.body;
-    console.log(req.body)
+    console.log(req.body);
 
     const existingOtp = await OtpModel.findOne({ email });
 
@@ -309,22 +314,41 @@ export const googleAuth = asyncHandler(
   }
 );
 
-
 export const updateUser = asyncHandler(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     console.log("hi");
-    
-    const _id = "682f6fc463226848c8393801"
-    const {  username,  password} = req.body;
-    const file = req.file
 
-    console.log(file )
-    const updateUser = await updateUserService(_id , { username  , password } , file)
+    const _id = "68301fd02868a7c0612bbbf7";
+    const { username, password } = req.body;
+    const file = req.file;
 
-    console.log(updateUser ," hh");
-    
+    console.log(file, "file ");
+    const updateUser = await updateUserService(
+      _id,
+      { username, password },
+      file
+    );
+
+    console.log(updateUser, " hh");
+
     res.status(200).json({
-      message: "User update successfully"
-    })
+      message: "User update successfully",
+    });
   }
 );
+
+// export const loginedUser = asyncHandler(
+//   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+// const userId = req.user?._id;
+
+// if (!userId) {
+//   throw new Error("User not authenticated");
+// }
+
+// const user = await loginedUserService(userId);
+
+//     res.status(200).json({
+//       user
+//     })
+//   }
+// );
