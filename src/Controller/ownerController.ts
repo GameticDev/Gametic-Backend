@@ -90,19 +90,30 @@ export const getAllturf = asyncErrorhandler(async (req: Request, res: Response) 
 // })
 .populate({
   path: "bookings.userId",
-  select: "name email phone picture"
+  select: "username email phone picture role",
+  model: 'User'
 })
-
+.lean();
     
 
   const total = await Turff.countDocuments(filter);
 
-  if (allTurf.length > 0 && allTurf[0].bookings?.length > 0) {
-    console.log('Sample populated booking:', {
+  // if (allTurf.length > 0 && allTurf[0].bookings?.length > 0) {
+  //   console.log('First booking with populated user:', {
+  //     turfId: allTurf[0]._id,
+  //     bookingUserId: allTurf[0].bookings[0].userId
+  //   });
+  // }
+
+   if (allTurf.length > 0 && allTurf[0].bookings?.length > 0) {
+    console.log('Sample populated data:', {
       turfId: allTurf[0]._id,
-      bookingUserId: allTurf[0].bookings[0].userId
+      booking: allTurf[0].bookings[0],
+      user: allTurf[0].bookings[0].userId,
+       userType: typeof allTurf[0].bookings[0].userId
     });
   }
+
   console.log(allTurf,"all turf in cntrlllll")
   return res.status(200).json({
     message: "Turf details fetched successfully",
