@@ -119,3 +119,4 @@ export const updateUserService = async (userId : string , data : UpdateUserData 
   await user.save()
   return user
 }
+

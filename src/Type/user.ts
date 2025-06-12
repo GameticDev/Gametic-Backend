@@ -1,4 +1,3 @@
-import { IUser } from "../Model/userModel";
 
 export interface RegisterUserInput {
   username: string;

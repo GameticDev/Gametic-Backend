@@ -337,18 +337,18 @@ export const updateUser = asyncHandler(
   }
 );
 
-// export const loginedUser = asyncHandler(
-//   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-// const userId = req.user?._id;
+export const loginedUser = asyncHandler(
+  async (req: Autent, res: Response, next: NextFunction): Promise<void> => {
+const userId = req.user?._id;
 
-// if (!userId) {
-//   throw new Error("User not authenticated");
-// }
+if (!userId) {
+  throw new Error("User not authenticated");
+}
 
-// const user = await loginedUserService(userId);
+const user = await loginedUserService(userId);
 
-//     res.status(200).json({
-//       user
-//     })
-//   }
-// );
+    res.status(200).json({
+      user
+    })
+  }
+);
