@@ -6,7 +6,6 @@ import asyncHandler from "../Middleware/asyncHandler";
 import {
   loginService,
   registerUserService,
-  logoutService,
   updateUserService,
 } from "../Service/userService";
 import { CustomError } from "../utils/customError";
@@ -113,7 +112,7 @@ export const loginUser = asyncHandler(
     );
     // Make all cookies consistent for cross-origin
     res.cookie("role", user.role, {
-      httpOnly: false, // Keep false if you need to access it from JS
+      httpOnly: true, // Keep false if you need to access it from JS
       secure: true,
       sameSite: "none", // Change this to "none"
       path: "/",
@@ -121,10 +120,9 @@ export const loginUser = asyncHandler(
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: true, // Use environment check here too
-      maxAge: 50 * 60 * 1000,
-      path: "/",
+      secure: true, // only works on HTTPS
       sameSite: "none",
+      maxAge: 50 * 60 * 1000,
     });
 
     res.cookie("refreshToken", refreshToken, {
