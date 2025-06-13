@@ -7,6 +7,7 @@ import {
   googleAuth,
   emailVerification,
   updateUser,
+  LoginedUserDetails,
 } from "../Controller/userController";
 import {
   addPost,
@@ -83,7 +84,6 @@ router.post("/team", createTeam);
 
 router.post("/updateprofile", upload.single("picture"), updateUser);
 
-// router.get("/me" , loginedUser)
 
 router.post("/check", loginUser);
 router.get("/postById/:id", getPostById);
@@ -106,5 +106,6 @@ router.post('/team',authMiddleware,createTeam)
 router.get('/tournamentById/:id',tournamentById)
 
 router.patch('/tournament/:id/join-team',joinTeamToTournament)
+router.post("/me", authMiddleware ,LoginedUserDetails);
 
 export default router;
