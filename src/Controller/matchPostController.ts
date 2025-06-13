@@ -1,8 +1,10 @@
 import { Request, Response } from "express";
 import { asyncErrorhandler } from "../Middleware/asyncErrorHandler";
-import { matchPostService } from "../Service/matchPostService";
+import { matchPostService  , cancledMatchService} from "../Service/matchPostService";
 import { CustomError } from "../utils/customError";
 import Match from "../Model/matchPostModel";
+import asyncHandler from "../Middleware/asyncHandler";
+import { AuthenticatedRequest } from "../Middleware/auth";
 
 
 export const addPost=asyncErrorhandler(async(req:Request,res:Response)=>{
@@ -82,6 +84,7 @@ export const joinMatchPost = asyncErrorhandler(async (req, res) => {
 
   // Check if already joined
   const alreadyJoined = match.joinedPlayers.includes(userId);
+
   if (alreadyJoined) {
     throw new CustomError("You have already joined this match", 400);
   }
@@ -106,3 +109,12 @@ export const joinMatchPost = asyncErrorhandler(async (req, res) => {
   res.status(200).json({ message: "Successfully joined match", joinedPlayers: match.joinedPlayers });
 });
 
+// export const cancelMatch =  asyncErrorhandler(async (req : AuthenticatedRequest, res) => {
+//   const matchId = req.params 
+//   const userId = req.user?.userId
+
+//   await cancledMatchService(matchId , userId)
+//   res.status(200).json({
+//     message : "Successfully cancelled your participation"
+//   })
+// })

@@ -11,6 +11,7 @@ import {
 } from "../Controller/userController";
 import {
   addPost,
+  // cancelMatch,
   deletePost,
   getAllPost,
   getPostById,
@@ -50,11 +51,12 @@ router.get("/getAllPost", authMiddleware, getAllPost);
 router
   //Host
   .get("/all-matches", getAllMatches)
-  .get("/match/:matchId", getMatchById)
+  .delete("/match/:id", getMatchById)
   .post("/host-match", authMiddleware, hostMatch)
   .post("/join-match/:matchId", authMiddleware, joinMatch)
   .get("/turfby-sport", getVenueBySports)
 
+  // .delete('/cencel-match/:id' , authMiddleware , cancelMatch)
   .post("/create-hosting-order", authMiddleware, createHostingOrder)
   .post("/create-join-order/:matchId", authMiddleware, createJoinOrder)
   .post("/verify-join-payment", authMiddleware, verifyJoinPayment)
