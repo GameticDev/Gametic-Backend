@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface Booking extends Document {
   userId: mongoose.Types.ObjectId;
+   turfId: mongoose.Types.ObjectId; 
   date: Date;
   startTime: string;
   endTime: string;
@@ -10,12 +11,18 @@ export interface Booking extends Document {
   amount: number;
   createdAt: Date;
   bookingType: "host" | "normal";
+  paymentId: string;
 }
 
 const bookingSchema = new Schema<Booking>({
   userId: {
     type: Schema.Types.ObjectId,
     ref: "User",
+    required: true,
+  },
+    turfId: {
+    type: Schema.Types.ObjectId,
+    ref: "Turf",
     required: true,
   },
   date: {
@@ -53,7 +60,7 @@ const bookingSchema = new Schema<Booking>({
     enum: ["host", "normal"],
     required: true,
     default: "normal",
-  },
+  }
 });
 
 const Booking = mongoose.model<Booking>("Booking", bookingSchema);
