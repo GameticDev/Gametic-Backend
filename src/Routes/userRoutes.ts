@@ -106,6 +106,6 @@ router.post('/team',authMiddleware,createTeam)
 router.get('/tournamentById/:id',tournamentById)
 
 router.patch('/tournament/:id/join-team',joinTeamToTournament)
-router.post("/me", authMiddleware ,LoginedUserDetails);
+router.post("/user", authMiddleware ,LoginedUserDetails);
 
 export default router;

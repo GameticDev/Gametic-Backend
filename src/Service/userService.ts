@@ -133,7 +133,7 @@ export const updateUserService = async (
 
 export const getLoginedUserDetails = async (id: string) => {
   const user = await User.findById(id).select(
-    "_id email username picture role"
+    "_id email username picture role preferredLocation"
   );
   const joinedOnlyMatches = await Match.find({
     joinedPlayers: id,
