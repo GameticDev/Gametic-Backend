@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { asyncErrorhandler } from "../Middleware/asyncErrorHandler";
-import { matchPostService  , cancledMatchService} from "../Service/matchPostService";
+import { matchPostService  } from "../Service/matchPostService";
 import { CustomError } from "../utils/customError";
 import Match from "../Model/matchPostModel";
 import asyncHandler from "../Middleware/asyncHandler";
