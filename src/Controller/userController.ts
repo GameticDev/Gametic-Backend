@@ -17,6 +17,7 @@ import { OAuth2Client } from "google-auth-library";
 import { generateRefreshToken, generateToken } from "../utils/generateToken";
 import OtpModel from "../Model/otpModel";
 
+
 interface AuthenticatedRequest extends Request {
   user?: {
     userId: string;
@@ -138,7 +139,7 @@ export const loginUser = asyncHandler(
       secure: true, // Use environment check here too
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: "/",
-      sameSite: "none",
+      sameSite: "strict",
     });
     res.status(200).json({
       message: `Login successful! Welcome back,`,
