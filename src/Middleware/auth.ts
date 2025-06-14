@@ -96,4 +96,3 @@ const verifyAdmin = (
 };
 
 export { authMiddleware , verifyOwner, verifyAdmin, AuthenticatedRequest };
-

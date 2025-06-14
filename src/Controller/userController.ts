@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import {  RegisterUserInput, UserPayload } from "../Type/user";
+import { RegisterUserInput, UserPayload } from "../Type/user";
 import { loginValidation, registerValidation } from "../utils/userValidation";
 import { ValidationError } from "joi";
 import asyncHandler from "../Middleware/asyncHandler";
@@ -23,7 +23,7 @@ export const registerUser = asyncHandler(
     res: Response,
     next: NextFunction
   ): Promise<void> => {
-    console.log(req.body)
+    console.log(req.body);
     const { username, email, password, role } = req.body;
 
     const { error }: { error?: ValidationError } = registerValidation.validate({
@@ -105,28 +105,34 @@ export const loginUser = asyncHandler(
       email,
       password,
     });
-  console.log(accessToken,refreshToken,user,"accessToken,refreshToken,user................")
+    console.log(
+      accessToken,
+      refreshToken,
+      user,
+      "accessToken,refreshToken,user................"
+    );
+    // Make all cookies consistent for cross-origin
     res.cookie("role", user.role, {
-      httpOnly: false,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      httpOnly: false, // Keep false if you need to access it from JS
+      secure: true,
+      sameSite: "strict", // Change this to "none"
       path: "/",
     });
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: true,
+      secure: true, // Use environment check here too
       maxAge: 50 * 60 * 1000,
       path: "/",
-      sameSite: "none",
+      sameSite: "strict",
     });
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: true,
+      secure: true, // Use environment check here too
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: "/",
-      sameSite: "none",
+      sameSite: "strict",
     });
     res.status(200).json({
       message: `Login successful! Welcome back,`,
@@ -136,7 +142,6 @@ export const loginUser = asyncHandler(
 );
 
 export const logOut = asyncHandler(async (req, res) => {
-
   res.clearCookie("accessToken", {
     httpOnly: true,
     secure: true,
@@ -171,16 +176,15 @@ export const emailVerification = asyncHandler(
       return next(new CustomError("User already exists", 404));
     }
 
-
     const otp = generateOTP();
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
-    console.log(otp)
+    console.log(otp);
 
-    try{
+    try {
       const send = await sendOtp(email, otp);
-      console.log(send,"send")
-    }catch(error){
-      console.log(error,"hiii")
+      console.log(send, "send");
+    } catch (error) {
+      console.log(error, "hiii");
     }
 
     await OtpModel.deleteMany({ email });
@@ -194,7 +198,7 @@ export const emailVerification = asyncHandler(
 export const verifyOtp = asyncHandler(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const { email, otp } = req.body;
-    console.log(req.body)
+    console.log(req.body);
 
     const existingOtp = await OtpModel.findOne({ email });
 
@@ -309,22 +313,41 @@ export const googleAuth = asyncHandler(
   }
 );
 
-
 export const updateUser = asyncHandler(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     console.log("hi");
-    
-    const _id = "682f6fc463226848c8393801"
-    const {  username,  password} = req.body;
-    const file = req.file
 
-    console.log(file )
-    const updateUser = await updateUserService(_id , { username  , password } , file)
+    const _id = "68301fd02868a7c0612bbbf7";
+    const { username, password } = req.body;
+    const file = req.file;
 
-    console.log(updateUser ," hh");
-    
+    console.log(file, "file ");
+    const updateUser = await updateUserService(
+      _id,
+      { username, password },
+      file
+    );
+
+    console.log(updateUser, " hh");
+
     res.status(200).json({
-      message: "User update successfully"
-    })
+      message: "User update successfully",
+    });
   }
 );
+
+// export const loginedUser = asyncHandler(
+//   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+// const userId = req.user?._id;
+
+// if (!userId) {
+//   throw new Error("User not authenticated");
+// }
+
+// const user = await loginedUserService(userId);
+
+//     res.status(200).json({
+//       user
+//     })
+//   }
+// );
