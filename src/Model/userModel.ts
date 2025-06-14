@@ -6,13 +6,14 @@ export interface IUser {
   email: string;
   password?: string;
   picture?: string;
-  phone?:number;
-  location?:string;
-  bio?:string;
-  businessName?:string;
+  phone?: number;
+  location?: string;
+  bio?: string;
+  businessName?: string;
   sign?: string;
   isBlocked?: boolean;
   role?: "user" | "owner" | "admin";
+  preferredLocation?: string;
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -62,6 +63,20 @@ const userSchema: Schema<IUserDocument> = new Schema(
     location: { type: String },
     bio: { type: String },
     businessName: { type: String },
+    preferredLocation: {
+      type: String,
+      default: function (this: IUserDocument) {
+        return this.role === "user" ? "Ernakulam" : null;
+      },
+      validate: {
+        validator: function (this: IUserDocument, value: string) {
+          return this.role === "user"
+            ? true
+            : value === undefined || value === null;
+        },
+        message: "preferredLocation is only allowed for users with role 'user'",
+      },
+    },
   },
   {
     timestamps: true,

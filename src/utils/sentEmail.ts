@@ -107,13 +107,54 @@ export const sendOtp = async (email: string, otp: string): Promise<void> => {
     </table>
 </body>`,
   };
-try{
-
+  try {
     const maile = await transporter.sendMail(mailOptions);
-    console.log(maile,"mail sucess")
+    console.log(maile, "mail sucess");
     console.log("OTP sent successfully");
-}catch(error){
-    console.log(error, "send errer")
-}
+  } catch (error) {
+    console.log(error, "send errer");
+  }
+};
 
+// export const sentHostEmail = async (email: string): Promise<void> => {
+//   const mailOptions = {
+//     from: process.env.EMAIL_USER,
+//     to: email,
+//     subject: "Gametic Sports - Hosting a game",
+//     html: `<h1>Hosted successfully</h1?`,
+//   };
+//   try {
+//     const maile = await transporter.sendMail(mailOptions);
+//     console.log(maile, "mail sucess");
+//   } catch (error) {
+//     console.log(error, "send errer");
+//   }
+// };
+export const sentJoinEmail = async (email: string): Promise<void> => {
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: "Gametic Sports - Joinig a game",
+    html: `<h1>Joined</h1>`,
+  };
+  try {
+    const maile = await transporter.sendMail(mailOptions);
+    console.log(maile, "mail sucess");
+  } catch (error) {
+    console.log(error, "send errer");
+  }
+};
+export const sendBookEmail = async (email: string): Promise<void> => {
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: "Gametic Sports - Booking a venue",
+    html: `<h1>Booked</h1>`,
+  };
+  try {
+    const maile = await transporter.sendMail(mailOptions);
+    console.log(maile, "mail sucess");
+  } catch (error) {
+    console.log(error, "send errer");
+  }
 };
