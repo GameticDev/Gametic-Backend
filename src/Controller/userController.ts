@@ -4,6 +4,7 @@ import { loginValidation, registerValidation } from "../utils/userValidation";
 import { ValidationError } from "joi";
 import asyncHandler from "../Middleware/asyncHandler";
 import {
+  
   getLoginedUserDetails,
   loginService,
   registerUserService,
@@ -16,6 +17,7 @@ import { sendOtp } from "../utils/sentEmail";
 import { OAuth2Client } from "google-auth-library";
 import { generateRefreshToken, generateToken } from "../utils/generateToken";
 import OtpModel from "../Model/otpModel";
+import Match from "../Model/matchPostModel";
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -120,18 +122,17 @@ export const loginUser = asyncHandler(
     );
     // Make all cookies consistent for cross-origin
     res.cookie("role", user.role, {
-      httpOnly: false, // Keep false if you need to access it from JS
+      httpOnly: true, // Keep false if you need to access it from JS
       secure: true,
-      sameSite: "strict", // Change this to "none"
+      sameSite: "none", // Change this to "none"
       path: "/",
     });
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: true, // Use environment check here too
+      secure: true, // only works on HTTPS
+      sameSite: "none",
       maxAge: 50 * 60 * 1000,
-      path: "/",
-      sameSite: "strict",
     });
 
     res.cookie("refreshToken", refreshToken, {
@@ -345,20 +346,19 @@ export const updateUser = asyncHandler(
 
 export const LoginedUserDetails = asyncHandler(
   async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
-// const userId ="68470dbc134bb9190212de1e"
+    const userId = req.user?.userId;
 
-const userId = req.user?.userId
-console.log(userId);
+    if (!userId) {
+      throw new Error("User not authenticated");
+    }
 
-if (!userId) {
-  throw new Error("User not authenticated");
-}
-
-const user = await getLoginedUserDetails(userId);
-console.log(user , "user");
+    const user = await getLoginedUserDetails(userId);
+    console.log(user, "user");
 
     res.status(200).json({
-      user
-    })
+      user,
+    });
   }
 );
+
+

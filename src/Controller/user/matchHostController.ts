@@ -9,6 +9,9 @@ import crypto from "crypto";
 import { configDotenv } from "dotenv";
 import { CustomError } from "../../utils/customError";
 import { Types } from "mongoose";
+import { sentJoinEmail } from "../../utils/sentEmail";
+import User from "../../Model/userModel";
+import { sentHostEmail } from "../../utils/hostMail";
 
 type TurfType =
   | "football"
@@ -179,8 +182,8 @@ export const createHostingOrder = asyncErrorhandler(
       res.status(401).json({ message: "User not authenticated" });
       return;
     }
-
-    const amount = turf.hourlyRate;
+    const turfRate = turf.hourlyRate * 100;
+    const amount = turfRate / maxPlayers;
 
     // Create Razorpay order
     try {
@@ -383,12 +386,10 @@ export const createJoinOrder = asyncErrorhandler(
       );
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error occurred";
-      return res
-        .status(500)
-        .json({
-          message: "Failed to create payment order",
-          error: errorMessage,
-        });
+      return res.status(500).json({
+        message: "Failed to create payment order",
+        error: errorMessage,
+      });
     }
   }
 );
@@ -711,6 +712,28 @@ export const hostMatch = asyncErrorhandler(
     });
 
     await Promise.all([newMatch.save(), turf.save()]);
+    const existingUser = await User.findOne({ _id: userId });
+    console.log(existingUser);
+
+    if (!existingUser || !existingUser.email) {
+      return next(new CustomError("User not found", 400));
+    }
+
+    const send = await sentHostEmail(
+      existingUser.email,
+      existingUser.username,
+      title,
+      sports,
+      date,
+      startTime,
+      endTime,
+      turf.name,
+      turf.location,
+      maxPlayers,
+      paymentPerPerson,
+      "123"
+    );
+    console.log(send, "send");
 
     res.status(201).json({
       message: "Match created and venue booked successfully",
@@ -721,7 +744,7 @@ export const hostMatch = asyncErrorhandler(
 );
 
 export const joinMatch = asyncErrorhandler(
-  async (req: AuthenticatedRequest, res: Response) => {
+  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     const { matchId } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(matchId)) {
@@ -762,6 +785,15 @@ export const joinMatch = asyncErrorhandler(
     }
 
     await match.save();
+    const existingUser = await User.findOne({ _id: userId });
+    console.log(existingUser);
+
+    if (!existingUser || !existingUser.email) {
+      return next(new CustomError("User not found", 400));
+    }
+
+    const send = await sentJoinEmail(existingUser.email);
+    console.log(send, "send");
 
     res.status(200).json({ message: "Successfully joined the match", match });
   }

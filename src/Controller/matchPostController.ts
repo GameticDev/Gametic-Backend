@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { asyncErrorhandler } from "../Middleware/asyncErrorHandler";
-import { matchPostService  } from "../Service/matchPostService";
+import { cancledMatchService, matchPostService  } from "../Service/matchPostService";
 import { CustomError } from "../utils/customError";
 import Match from "../Model/matchPostModel";
 import asyncHandler from "../Middleware/asyncHandler";
@@ -109,12 +109,18 @@ export const joinMatchPost = asyncErrorhandler(async (req, res) => {
   res.status(200).json({ message: "Successfully joined match", joinedPlayers: match.joinedPlayers });
 });
 
-// export const cancelMatch =  asyncErrorhandler(async (req : AuthenticatedRequest, res) => {
-//   const matchId = req.params 
-//   const userId = req.user?.userId
 
-//   await cancledMatchService(matchId , userId)
-//   res.status(200).json({
-//     message : "Successfully cancelled your participation"
-//   })
-// })
+
+export const cancelMatch =  asyncErrorhandler(async (req : AuthenticatedRequest, res) => {
+  const matchId = req.params.matchId;
+  const userId = req.user?.userId
+
+  if(!userId){
+    throw new CustomError("User not found")
+  }
+  
+  await cancledMatchService(matchId , userId)
+  res.status(200).json({
+    message : "Successfully cancelled your participation"
+  })
+})

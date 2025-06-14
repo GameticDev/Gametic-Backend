@@ -36,27 +36,27 @@ export const matchPostService = async (data: MatchPost) => {
   return await newPost.save();
 };
 
-// export const cancledMatchService = async (matchId: string, userId: string) => {
-//   const match = await Match.findById(matchId);
+export const cancledMatchService = async (matchId: string, userId: string) => {
+  const match = await Match.findById(matchId);
 
-//   if (!match) {
-//     throw new CustomError("Match not Found");
-//   }
+  if (!match) {
+    throw new CustomError("Match not Found");
+  }
 
-//   if (match.userId.toString() === userId.toString()) {
-//     throw new CustomError("Host cannot cancel as a player");
-//   }
-//   const isJoined = match.joinedPlayers
-//     .map((id) => id.toString())
-//     .includes(userId);
+  if (match.userId.toString() === userId.toString()) {
+    throw new CustomError("Host cannot cancel as a player");
+  }
+  const isJoined = match.joinedPlayers
+    .map((id) => id.toString())
+    .includes(userId);
 
-//     if(!isJoined){
-//         throw new CustomError("You have not joined this match")
-//     }
+    if(!isJoined){
+        throw new CustomError("You have not joined this match")
+    }
 
-//     match.joinedPlayers = match.joinedPlayers.filter(
-//   (id: Types.ObjectId) => id.toString() !== userId.toString()
-// );
+    match.joinedPlayers = match.joinedPlayers.filter(
+  (id: Types.ObjectId) => id.toString() !== userId.toString()
+);
 
-// await match.save()
-// };
+await match.save()
+};
