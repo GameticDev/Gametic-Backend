@@ -11,6 +11,7 @@ import {
 } from "../Controller/userController";
 import {
   addPost,
+  cancelMatch,
   deletePost,
   getAllPost,
   getPostById,
@@ -61,6 +62,7 @@ router
   .post("/join-match/:matchId", authMiddleware, joinMatch)
   .get("/turfby-sport", getVenueBySports)
 
+  .delete("/:matchId/leave", authMiddleware , cancelMatch)
   .post("/create-hosting-order", authMiddleware, createHostingOrder)
   .post("/create-join-order/:matchId", authMiddleware, createJoinOrder)
   .post("/verify-join-payment", authMiddleware, verifyJoinPayment)
@@ -106,6 +108,6 @@ router.post('/team',authMiddleware,createTeam)
 router.get('/tournamentById/:id',tournamentById)
 
 router.patch('/tournament/:id/join-team',joinTeamToTournament)
-router.post("/user", authMiddleware ,LoginedUserDetails);
+router.get("/user", authMiddleware ,LoginedUserDetails);
 
 export default router;
