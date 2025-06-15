@@ -8,7 +8,6 @@ import {
   emailVerification,
   updateUser,
   LoginedUserDetails,
-  LoginedUserDetails,
 } from "../Controller/userController";
 import {
   addPost,
@@ -29,12 +28,6 @@ import {
   joinMatch,
   verifyJoinPayment,
 } from "../Controller/user/matchHostController";
-import {
-  bookVenue,
-  createBookingOrder,
-  getAllVenuesforUser,
-  getVenueByIdforUser,
-} from "../Controller/user/venueController";
 import {
   bookVenue,
   createBookingOrder,
