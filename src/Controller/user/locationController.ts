@@ -60,6 +60,45 @@ export const updatePreferredLocation = asyncErrorhandler(
   }
 );
 
+// export const getLocations = asyncErrorhandler(
+//   async (
+//     req: Request<{}, {}, {}, LocationQuery>,
+//     res: Response,
+//     next: NextFunction
+//   ) => {
+//     const search = req.query.search as string | undefined;
+
+//     const query: Partial<{
+//       $or?: Array<{ [key: string]: { $regex: string; $options: string } }>;
+//       turfType: string;
+//     }> = {};
+//     if (search) {
+//       query.$or = [{ name: { $regex: search, $options: "i" } }];
+//     }
+
+//     const totalLocations = await Locations.countDocuments(query);
+
+//     const locations = await Locations.find(query)
+//       .select("name state")
+//       .sort({ name: 1 })
+//       .lean();
+
+//     if (!locations.length) {
+//       return next(new CustomError("No locations found", 404));
+//     }
+
+//     return res.status(200).json({
+//       message: "All locations fetched successfully",
+//       locations: locations.map((loc) => ({
+//         name: loc.name,
+//         state: loc.state,
+//       })),
+//       totalLocations,
+//     });
+//   }
+// );
+
+
 export const getLocations = asyncErrorhandler(
   async (
     req: Request<{}, {}, {}, LocationQuery>,
@@ -68,13 +107,20 @@ export const getLocations = asyncErrorhandler(
   ) => {
     const search = req.query.search as string | undefined;
 
+    if (!search || search.trim() === "") {
+      return res.status(200).json({
+        message: "No search term provided",
+        locations: [],
+        totalLocations: 0,
+      });
+    }
+
     const query: Partial<{
       $or?: Array<{ [key: string]: { $regex: string; $options: string } }>;
       turfType: string;
-    }> = {};
-    if (search) {
-      query.$or = [{ name: { $regex: search, $options: "i" } }];
-    }
+    }> = {
+      $or: [{ name: { $regex: search, $options: "i" } }],
+    };
 
     const totalLocations = await Locations.countDocuments(query);
 

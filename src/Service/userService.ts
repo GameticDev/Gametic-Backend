@@ -134,8 +134,12 @@ export const updateUserService = async (
 // Get Logged-In User Details
 export const getLoginedUserDetails = async (id: string) => {
   const user = await User.findById(id).select(
-    "_id email username picture role"
+    "_id email username picture role preferredLocation"
   );
+
+  if (!user) {
+    throw new CustomError("user not found", 404);
+  }
 
   const joinedOnlyMatches = await Match.find({
     joinedPlayers: id,
@@ -154,5 +158,6 @@ export const getLoginedUserDetails = async (id: string) => {
     user,
     hostedMatches,
     joinedOnlyMatches,
+    preferredLocation: user.preferredLocation,
   };
 };
