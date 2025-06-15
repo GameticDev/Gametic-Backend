@@ -8,9 +8,11 @@ import {
   emailVerification,
   updateUser,
   LoginedUserDetails,
+  LoginedUserDetails,
 } from "../Controller/userController";
 import {
   addPost,
+  cancelMatch,
   deletePost,
   getAllPost,
   getPostById,
@@ -27,6 +29,12 @@ import {
   joinMatch,
   verifyJoinPayment,
 } from "../Controller/user/matchHostController";
+import {
+  bookVenue,
+  createBookingOrder,
+  getAllVenuesforUser,
+  getVenueByIdforUser,
+} from "../Controller/user/venueController";
 import {
   bookVenue,
   createBookingOrder,
@@ -62,6 +70,8 @@ router.post("/auth/google", googleAuth);
 
 router.post("/addMatch", addPost);
 router.get("/getAllPost", authMiddleware, getAllPost);
+router.post("/addMatch", addPost);
+router.get("/getAllPost", authMiddleware, getAllPost);
 router
   //Host
   .get("/all-matches", getAllMatches)
@@ -70,6 +80,7 @@ router
   .post("/join-match/:matchId", authMiddleware, joinMatch)
   .get("/turfby-sport", getVenueBySports)
 
+  .delete("/:matchId/leave", authMiddleware , cancelMatch)
   .post("/create-hosting-order", authMiddleware, createHostingOrder)
   .post("/create-join-order/:matchId", authMiddleware, createJoinOrder)
   .post("/verify-join-payment", authMiddleware, verifyJoinPayment)
@@ -87,6 +98,7 @@ router
 router.post("/addMatch", addPost);
 router.get("/getAllPost", getAllPost);
 
+router.get("/postById/:id", getPostById);
 router.get("/postById/:id", getPostById);
 
 router.post("/postById/:id/join", joinMatchPost);

@@ -16,6 +16,14 @@ import { sendOtp } from "../utils/sentEmail";
 import { OAuth2Client } from "google-auth-library";
 import { generateRefreshToken, generateToken } from "../utils/generateToken";
 import OtpModel from "../Model/otpModel";
+import Match from "../Model/matchPostModel";
+
+interface AuthenticatedRequest extends Request {
+  user?: {
+    userId: string;
+    role: string | undefined;
+  };
+}
 
 
 interface AuthenticatedRequest extends Request {
