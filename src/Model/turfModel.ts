@@ -21,9 +21,27 @@ export interface TurffData extends Document {
     | "hockey";
   size?: string;
   images: string[];
+  // availability: {
+  //   [day: string]: { start: string; end: string }[];
+  // };
+
   availability: {
-    [day: string]: { start: string; end: string }[];
-  };
+  regular: {
+    days: [String],
+    startTime: String,
+    endTime: String,
+    unavailableSlots: [String],
+  },
+  exceptions: [{
+    date: String,
+    startTime: String,
+    endTime: String,
+    reason: String,
+  }],
+  isUnderMaintenance: Boolean,
+  maintenanceMessage: String,
+},
+
   bookedSlot: {
     date: string;
     slots: { start: string; end: string }[];
