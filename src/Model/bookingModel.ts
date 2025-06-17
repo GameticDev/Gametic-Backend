@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface Booking extends Document {
   userId: mongoose.Types.ObjectId;
+   turfId: mongoose.Types.ObjectId; 
   date: Date;
   startTime: string;
   endTime: string;
@@ -17,6 +18,11 @@ const bookingSchema = new Schema<Booking>({
   userId: {
     type: Schema.Types.ObjectId,
     ref: "User",
+    required: true,
+  },
+    turfId: {
+    type: Schema.Types.ObjectId,
+    ref: "Turf",
     required: true,
   },
   date: {
