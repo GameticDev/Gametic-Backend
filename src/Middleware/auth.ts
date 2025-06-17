@@ -11,6 +11,7 @@ interface AuthenticatedRequest extends Request {
   };
 }
 
+
 interface CustomJwtPayload extends JwtPayload {
   userId: string;
   role: string;

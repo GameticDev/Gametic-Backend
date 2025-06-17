@@ -23,7 +23,6 @@ export const registerUser = asyncHandler(
     res: Response,
     next: NextFunction
   ): Promise<void> => {
-    console.log(req.body);
     const { username, email, password, role } = req.body;
 
     const { error }: { error?: ValidationError } = registerValidation.validate({

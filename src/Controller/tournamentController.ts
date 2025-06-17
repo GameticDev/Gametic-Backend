@@ -25,6 +25,8 @@ export const createTournamentPost = asyncErrorhandler(async (req: AuthenticatedR
     image
   } = req.body;
   const { userId } = req.user!;
+
+
   const file = req.file;
 
   if (!file) {

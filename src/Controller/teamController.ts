@@ -3,14 +3,20 @@ import User from "../Model/userModel";
 import { createTeamService } from "../Service/teamService";
 import { CustomError } from "../utils/customError";
 import { asyncErrorhandler } from "../Middleware/asyncErrorHandler";
-import { AuthenticatedRequest } from '../Middleware/auth';
 import mongoose from "mongoose";
 import {sendEmailService} from '../utils/sentInvitation'
+import Team from "../Model/teamModel";
+import { AuthenticatedRequest } from "../Middleware/auth";
 
 
-export const createTeam = asyncErrorhandler(async (req: AuthenticatedRequest, res: Response) => {
-  const { name, sport, memberEmails } = req.body;
- const { userId, role } = req.user!;
+export const createTeam = asyncErrorhandler(async (req:AuthenticatedRequest , res: Response) => {
+  const { name, sport, memberEmails} = req.body;
+
+  const { userId } = req.user!;
+
+
+
+ 
   
 const teamManager=new mongoose.Types.ObjectId(userId);
 
@@ -24,7 +30,7 @@ const teamManager=new mongoose.Types.ObjectId(userId);
   }
 
   // Fetch users by email (only _id and email fields)
-const users = await User.find({ email: { $in: memberEmails } }, '_id email').exec();
+const users = await User.find({ email: { $in: memberEmails } }, '_id email');
 
 
 
@@ -42,3 +48,23 @@ await sendEmailService(memberEmails);
     addedMembers: users.map((u) => ({ id: u._id, email: u.email })),
   });
 });
+
+
+export const TeamById=asyncErrorhandler(async(req:Request,res:Response)=>{
+    const{id}=req.params;
+    if(!id){
+      throw new CustomError(" Team id not found",404)
+    }
+    const team=await Team.findById(id)
+     .populate('members','name email')
+
+     if(!team){
+      throw new CustomError("Team not found",404)
+     }
+
+     return res.status(200).json({
+      message:"Team fetched successfully",
+      team
+     })
+
+})

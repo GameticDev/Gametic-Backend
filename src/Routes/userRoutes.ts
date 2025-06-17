@@ -15,7 +15,7 @@ import {
   getPostById,
   joinMatchPost,
 } from "../Controller/matchPostController";
-import { createTeam } from "../Controller/teamController";
+import { createTeam, TeamById } from "../Controller/teamController";
 import {
   createHostingOrder,
   createJoinOrder,
@@ -73,7 +73,6 @@ router.post('/postById/:id/join',joinMatchPost)
 router.patch('/deletepost/:id',deletePost)
 
 
-router.post('/team',createTeam)
 
 router.post('/updateprofile'  ,upload.single('picture') , updateUser )
 
@@ -99,7 +98,7 @@ router.patch('/tournament/:id/join-team',joinTeamToTournament)
 router.post('/updateprofile'  ,upload.single('picture') , updateUser )
 
 
-// router.post("/team", createTeam);
+router.get('/teamById/:id',authMiddleware,TeamById)
 
 router.post("/check", loginUser);
 
