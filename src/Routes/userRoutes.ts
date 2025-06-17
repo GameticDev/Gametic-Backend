@@ -35,7 +35,6 @@ import {
   getVenueByIdforUser,
 } from "../Controller/user/venueController";
 import upload from "../Middleware/uploadMulter";
-import { createTournamentPost, getAllTournamentPost, joinTeamToTournament, tournamentById } from "../Controller/tournamentController";
 import { authMiddleware } from "../Middleware/auth";
 import { createTournamentPost, getAllTournamentPost, joinTeamToTournament, tournamentById } from "../Controller/tournamentController";
 
