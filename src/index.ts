@@ -22,8 +22,6 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-app.use(cors());
-
 
 if (!process.env.MONGO_URI) {
   throw new Error("MONGO_URI is not defined in environment variables");

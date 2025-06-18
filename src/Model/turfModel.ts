@@ -1,4 +1,177 @@
 
+// import mongoose, { Schema, Document } from "mongoose";
+// import { ratingSchema, Rating } from "./ratingModel";
+// import { bookingSchema, Booking } from "./bookingModel";
+
+// export interface TurffData extends Document {
+//   ownerId: mongoose.Types.ObjectId;
+//   name: string;
+//   city: string;
+//   area: string;
+//   location: string;
+//   turfType:
+//     | "football"
+//     | "cricket"
+//     | "multi-sport"
+//     | "swimming"
+//     | "basketball"
+//     | "badminton"
+//     | "tennis"
+//     | "volleyball"
+//     | "hockey";
+//   size?: string;
+//   images: string[];
+//   // availability: {
+//   //   [day: string]: { start: string; end: string }[];
+//   // };
+
+//   availability: {
+//   regular: {
+//     days: [String],
+//     startTime: String,
+//     endTime: String,
+//     unavailableSlots: [String],
+//   },
+//   exceptions: [{
+//     date: String,
+//     startTime: String,
+//     endTime: String,
+//     reason: String,
+//   }],
+//   isUnderMaintenance: Boolean,
+//   maintenanceMessage: String,
+// },
+
+//   bookedSlot: {
+//     date: string;
+//     slots: { start: string; end: string }[];
+//   }[];
+//   hourlyRate: number;
+//   status: "active" | "inactive";
+//   isDelete: boolean;
+//   ratings: Rating[];
+//   bookings: Booking[];
+//   averageRating?: number;
+// }
+
+// const turfSchema = new Schema<TurffData>(
+//   {
+//     ownerId: {
+//       type: Schema.Types.ObjectId,
+//       ref: "User",
+//       required: true,
+//     },
+//     name: {
+//       type: String,
+//       required: true,
+//     },
+//     city: {
+//       type: String,
+//       required: true,
+//     },
+//     area: {
+//       type: String,
+//       required: true,
+//     },
+//     location: {
+//       type: String,
+//       required: true,
+//     },
+//     turfType: {
+//       type: String,
+//       enum: [
+//         "football",
+//         "cricket",
+//         "multi-sport",
+//         "swimming",
+//         "basketball",
+//         "badminton",
+//         "tennis",
+//         "volleyball",
+//         "hockey",
+//       ],
+//       required: true,
+//     },
+//     size: {
+//       type: String,
+//     },
+//     images: {
+//       type: [String],
+//       required: true,
+//     },
+//     hourlyRate: {
+//       type: Number,
+//       required: true,
+//     },
+//     status: {
+//       type: String,
+//       enum: ["active", "inactive"],
+//       default: "active",
+//     },
+//     availability: {
+//       type: Schema.Types.Mixed,
+//       required: true,
+//     },
+//     bookedSlot: [
+//       {
+//         date: {
+//           type: String,
+//           required: true,
+//         },
+//         slots: [
+//           {
+//             start: {
+//               type: String,
+//               required: true,
+//             },
+//             end: {
+//               type: String,
+//               required: true,
+//             },
+//           },
+//         ],
+//       },
+//     ],
+//     isDelete: {
+//       type: Boolean,
+//       default: false,
+//     },
+//     ratings: [ratingSchema],
+//     bookings: [bookingSchema],
+//     averageRating: {
+//       type: Number,
+//       default: 0,
+//       min: 0,
+//       max: 5,
+//     },
+//   },
+//   {
+//     timestamps: true,
+//   }
+// );
+
+// // Calculate average rating before saving
+// turfSchema.pre("save", function (next) {
+//   if (this.ratings && this.ratings.length > 0) {
+//     const sum = this.ratings.reduce(
+//       (total, rating) => total + rating.rating,
+//       0
+//     );
+//     this.averageRating = sum / this.ratings.length;
+//   } else {
+//     this.averageRating = 0;
+//   }
+
+//   next();
+// });
+  
+
+
+// const Turff = mongoose.model<TurffData>("Turf", turfSchema);
+// export default Turff;
+
+
+
 import mongoose, { Schema, Document } from "mongoose";
 import { ratingSchema, Rating } from "./ratingModel";
 import { bookingSchema, Booking } from "./bookingModel";
@@ -147,6 +320,8 @@ const turfSchema = new Schema<TurffData>(
   },
   {
     timestamps: true,
+    // toJSON: { virtuals: true },
+    // toObject: { virtuals: true },
   }
 );
 
@@ -161,8 +336,59 @@ turfSchema.pre("save", function (next) {
   } else {
     this.averageRating = 0;
   }
+  // New: Sync bookedSlot with bookings
+  if (this.isModified("bookings")) {
+    const bookedSlotsMap = new Map<string, { start: string; end: string }[]>();
+
+    this.bookings.forEach(booking => {
+      const dateStr = new Date(booking.date).toISOString().split('T')[0];
+      
+      if (!bookedSlotsMap.has(dateStr)) {
+        bookedSlotsMap.set(dateStr, []);
+      }
+      
+      bookedSlotsMap.get(dateStr)?.push({
+        start: booking.startTime,
+        end: booking.endTime
+      });
+    });
+
+    this.bookedSlot = Array.from(bookedSlotsMap.entries()).map(([date, slots]) => ({
+      date,
+      slots
+    }));
+  }
+
   next();
 });
+  
+// Virtual for computed booked slots (alternative if bookedSlot is empty)
+turfSchema.virtual('computedBookedSlots').get(function() {
+  if (this.bookedSlot && this.bookedSlot.length > 0) {
+    return this.bookedSlot;
+  }
+
+  const slotsMap = new Map<string, { start: string; end: string }[]>();
+  
+  this.bookings?.forEach(booking => {
+    const dateStr = new Date(booking.date).toISOString().split('T')[0];
+    
+    if (!slotsMap.has(dateStr)) {
+      slotsMap.set(dateStr, []);
+    }
+    
+    slotsMap.get(dateStr)?.push({
+      start: booking.startTime,
+      end: booking.endTime
+    });
+  });
+
+  return Array.from(slotsMap.entries()).map(([date, slots]) => ({
+    date,
+    slots
+  }));
+});
+
 
 const Turff = mongoose.model<TurffData>("Turf", turfSchema);
 export default Turff;
