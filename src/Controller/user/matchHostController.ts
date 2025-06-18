@@ -12,6 +12,8 @@ import { Types } from "mongoose";
 import { sentJoinEmail } from "../../utils/sentEmail";
 import User from "../../Model/userModel";
 import { sentHostEmail } from "../../utils/hostMail";
+import { getIO } from "../../socket";
+import Notification from "../../Model/notificationModel";
 
 type TurfType =
   | "football"
@@ -221,7 +223,6 @@ export const createHostingOrder = asyncErrorhandler(
   }
 );
 
-
 export const createJoinOrder = asyncErrorhandler(
   async (req: AuthenticatedRequest, res: Response) => {
     const { matchId } = req.params;
@@ -385,7 +386,6 @@ export const verifyJoinPayment = asyncErrorhandler(
   }
 );
 
-// Keep your existing functions
 export const getAllMatches = asyncErrorhandler(
   async (req: Request, res: Response): Promise<void> => {
     const { page = "1", limit = "10", search = "" } = req.query;
@@ -402,8 +402,30 @@ export const getAllMatches = asyncErrorhandler(
       return;
     }
 
+    const currentIST = new Date().toLocaleString("en-US", {
+      timeZone: "Asia/Kolkata",
+    });
+    const currentDate = new Date(currentIST);
+
     const query: any = {
       status: { $in: ["open", "full"] },
+      $expr: {
+        $gt: [
+          {
+            $dateFromString: {
+              dateString: {
+                $concat: [
+                  { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+                  "T",
+                  "$endTime",
+                  ":00+05:30",
+                ],
+              },
+            },
+          },
+          currentDate,
+        ],
+      },
     };
 
     if (search) {
@@ -654,7 +676,35 @@ export const hostMatch = asyncErrorhandler(
       paymentPerPerson,
       "123"
     );
-    console.log(send, "send");
+//newwwwwwww
+    const usersInLocation = await User.find({
+      preferredLocation: turf.location,
+      _id: { $ne: userId },
+      isBlocked: false,
+    }).select("_id");
+
+    const notificationPromises = usersInLocation.map((user) =>
+      new Notification({
+        title: "New Match Available!",
+        message: `A new ${sports} match titled "${title}" is scheduled on ${date} at ${turf.name} in ${turf.location}!`,
+        type: "match",
+        userId: user._id,
+        matchId: newMatch._id,
+        isRead: false,
+      }).save()
+    );
+
+    await Promise.all(notificationPromises);
+
+    const io = getIO();
+    io.to(`location:${turf.location}`).emit("newNotification", {
+      title: "New Match Available!",
+      message: `A new ${sports} match titled "${title}" is scheduled on ${date} at ${turf.name} in ${turf.location}!`,
+      type: "match",
+      matchId: newMatch._id,
+    });
+
+   
 
     res.status(201).json({
       message: "Match created and venue booked successfully",
