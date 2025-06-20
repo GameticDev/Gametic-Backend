@@ -54,11 +54,10 @@ const isSlotBooked = (
 };
 
 export const bookVenue = asyncErrorhandler(
-  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  async (req: AuthenticatedRequest, res: Response) => {
     const { turfId, date, startTime, endTime } =
       req.body as BookVenueRequestBody;
 
-    console.log(req.body);
     if (!turfId || !date || !startTime || !endTime) {
       res.status(400).json({ message: "All fields are required" });
       return;
@@ -102,6 +101,7 @@ export const bookVenue = asyncErrorhandler(
 
     const amount = turf.hourlyRate;
 
+    // Create new booking
     const newBooking: Booking = {
       userId: new mongoose.Types.ObjectId(userId),
       date: new Date(date),
@@ -132,16 +132,6 @@ export const bookVenue = asyncErrorhandler(
     }
 
     await turf.save();
-
-    const existingUser = await User.findOne({ _id: userId });
-    console.log(existingUser);
-
-    if (!existingUser || !existingUser.email) {
-      return next(new CustomError("User not found", 400));
-    }
-
-    const send = await sendBookEmail(existingUser.email);
-    console.log(send, "send");
 
     res
       .status(201)

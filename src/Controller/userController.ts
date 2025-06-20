@@ -4,7 +4,6 @@ import { loginValidation, registerValidation } from "../utils/userValidation";
 import { ValidationError } from "joi";
 import asyncHandler from "../Middleware/asyncHandler";
 import {
-  
   getLoginedUserDetails,
   loginService,
   registerUserService,
@@ -18,6 +17,14 @@ import { OAuth2Client } from "google-auth-library";
 import { generateRefreshToken, generateToken } from "../utils/generateToken";
 import OtpModel from "../Model/otpModel";
 import Match from "../Model/matchPostModel";
+
+interface AuthenticatedRequest extends Request {
+  user?: {
+    userId: string;
+    role: string | undefined;
+  };
+}
+
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -346,19 +353,20 @@ export const updateUser = asyncHandler(
 
 export const LoginedUserDetails = asyncHandler(
   async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
-    const userId = req.user?.userId;
+// const userId ="68470dbc134bb9190212de1e"
 
-    if (!userId) {
-      throw new Error("User not authenticated");
-    }
+const userId = req.user?.userId
+console.log(userId);
 
-    const user = await getLoginedUserDetails(userId);
-    console.log(user, "user");
+if (!userId) {
+  throw new Error("User not authenticated");
+}
+
+const user = await getLoginedUserDetails(userId);
+console.log(user , "user");
 
     res.status(200).json({
-      user,
-    });
+      user
+    })
   }
 );
-
-
