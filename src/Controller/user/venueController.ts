@@ -94,7 +94,7 @@ export const bookVenue = asyncErrorhandler(
       return;
     }
 
-    const userId = req.user?.userId; // Adjust based on your auth middleware
+    const userId = req.user?.userId; 
     if (!userId) {
       res.status(401).json({ message: "User not authenticated" });
       return;
