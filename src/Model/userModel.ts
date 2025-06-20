@@ -68,14 +68,6 @@ const userSchema: Schema<IUserDocument> = new Schema(
       default: function (this: IUserDocument) {
         return this.role === "user" ? "Ernakulam" : null;
       },
-      validate: {
-        validator: function (this: IUserDocument, value: string) {
-          return this.role === "user"
-            ? true
-            : value === undefined || value === null;
-        },
-        message: "preferredLocation is only allowed for users with role 'user'",
-      },
     },
   },
   {
