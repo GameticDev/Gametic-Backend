@@ -17,7 +17,7 @@ import {
   getPostById,
   joinMatchPost,
 } from "../Controller/matchPostController";
-import { createTeam } from "../Controller/teamController";
+import { createTeam, TeamById } from "../Controller/teamController";
 import {
   createHostingOrder,
   createJoinOrder,
@@ -94,39 +94,50 @@ router.get("/getAllPost", getAllPost);
 router.get("/postById/:id", getPostById);
 router.get("/postById/:id", getPostById);
 
-router.post("/postById/:id/join", joinMatchPost);
+router.post('/postById/:id/join',joinMatchPost)
 
-router.patch("/deletepost/:id", deletePost);
+router.patch('/deletepost/:id',deletePost)
 
-router.post("/team", createTeam);
+console.log('kkkkkkkkk')
 
-router.post("/updateprofile", upload.single("picture"), updateUser);
+router.post('/updateprofile'  ,upload.single('picture') , updateUser )
 
-router.post("/check", loginUser);
+
+ router.post("/check",loginUser)
 router.get("/postById/:id", getPostById);
 
 router.post("/postById/:id/join", joinMatchPost);
 
 router.patch("/deletepost/:id", deletePost);
-router.post("/updateprofile", upload.single("picture"), updateUser);
 
-router.post("/team", createTeam);
+//tournament APIs
+router.get('/getAllTournament',getAllTournamentPost)
+router.post('/createTournament',authMiddleware,upload.single('image'),createTournamentPost)
+
+router.post('/team',authMiddleware,createTeam)
+
+router.get('/tournamentById/:id',tournamentById)
+
+router.patch('/tournament/:id/join-team',joinTeamToTournament)
+
+router.post('/updateprofile'  ,upload.single('picture') , updateUser )
+
+
+router.get('/teamById/:id',authMiddleware,TeamById,() => console.log('kkkk')
+
+)
 
 router.post("/check", loginUser);
 
-router.get("/getAllTournament", getAllTournamentPost);
-router.post(
-  "/createTournament",
-  authMiddleware,
-  upload.single("image"),
-  createTournamentPost
-);
 
-router.post("/team", authMiddleware, createTeam);
+router.get('/getAllTournament',getAllTournamentPost)
+router.post('/createTournament',authMiddleware,upload.single('image'),createTournamentPost)
 
-router.get("/tournamentById/:id", tournamentById);
+router.post('/team',authMiddleware,createTeam)
 
-router.patch("/tournament/:id/join-team", joinTeamToTournament);
-router.get("/user", authMiddleware, LoginedUserDetails);
+router.get('/tournamentById/:id',tournamentById)
+
+router.patch('/tournament/:id/join-team',joinTeamToTournament)
+router.get("/user", authMiddleware ,LoginedUserDetails);
 
 export default router;
