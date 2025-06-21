@@ -15,6 +15,7 @@ import { sentHostEmail } from "../../utils/hostMail";
 import { getIO } from "../../socket";
 import Notification from "../../Model/notificationModel";
 
+
 type TurfType =
   | "football"
   | "cricket"
@@ -414,6 +415,7 @@ export const getAllMatches = asyncErrorhandler(
       timeZone: "Asia/Kolkata",
     });
     const currentDate = new Date(currentIST);
+
 
     const query: any = {
       status: { $in: ["open", "full"] },
