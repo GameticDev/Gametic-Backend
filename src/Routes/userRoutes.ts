@@ -36,7 +36,16 @@ import {
 } from "../Controller/user/venueController";
 import upload from "../Middleware/uploadMulter";
 import { authMiddleware } from "../Middleware/auth";
-import { createTournamentPost, getAllTournamentPost, joinTeamToTournament, tournamentById } from "../Controller/tournamentController";
+import {
+  createTournamentPost,
+  getAllTournamentPost,
+  joinTeamToTournament,
+  tournamentById,
+} from "../Controller/tournamentController";
+import {
+  getLocations,
+  updatePreferredLocation,
+} from "../Controller/user/locationController";
 
 const router = express.Router();
 
@@ -52,6 +61,8 @@ router.post("/verifyotp", verifyOtp);
 
 router.post("/auth/google", googleAuth);
 
+router.post("/addMatch", addPost);
+router.get("/getAllPost", authMiddleware, getAllPost);
 router.post("/addMatch", addPost);
 router.get("/getAllPost", authMiddleware, getAllPost);
 router
@@ -71,11 +82,16 @@ router
   .post("/venue-booking", authMiddleware, bookVenue)
   .post("/create-booking-order", authMiddleware, createBookingOrder)
   .get("/getAllVenues", getAllVenuesforUser)
-  .get("/veunesById/:turfId", getVenueByIdforUser);
+  .get("/veunesById/:turfId", getVenueByIdforUser)
+
+  //location
+  .patch("/update-location", authMiddleware, updatePreferredLocation)
+  .get("/getLocations", getLocations);
 
 router.post("/addMatch", addPost);
 router.get("/getAllPost", getAllPost);
 
+router.get("/postById/:id", getPostById);
 router.get("/postById/:id", getPostById);
 
 router.post('/postById/:id/join',joinMatchPost)
