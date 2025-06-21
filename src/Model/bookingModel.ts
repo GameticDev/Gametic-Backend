@@ -10,6 +10,7 @@ export interface Booking extends Document {
   amount: number;
   createdAt: Date;
   bookingType: "host" | "normal";
+  duration?: number;
   paymentId: string;
 }
 
@@ -55,6 +56,24 @@ const bookingSchema = new Schema<Booking>({
     required: true,
     default: "normal",
   },
+  duration: {
+    type: Number, 
+  },
+});
+
+bookingSchema.pre("save", function (next) {
+  const parseTime = (timeStr: string): number => {
+    const [hours, minutes] = timeStr.split(":").map(Number);
+    return hours + minutes / 60;
+  };
+
+  if (this.startTime && this.endTime) {
+    const start = parseTime(this.startTime);
+    const end = parseTime(this.endTime);
+    this.duration = parseFloat((end - start).toFixed(1));
+  }
+
+  next();
 });
 
 const Booking = mongoose.model<Booking>("Booking", bookingSchema);
