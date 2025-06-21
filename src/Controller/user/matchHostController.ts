@@ -388,7 +388,15 @@ export const verifyJoinPayment = asyncErrorhandler(
 
 export const getAllMatches = asyncErrorhandler(
   async (req: Request, res: Response): Promise<void> => {
-    const { page = "1", limit = "10", search = "" } = req.query;
+    const {
+      page = "1",
+      limit = "10",
+      search = "",
+      sport = "",
+      location = "",
+    } = req.query;
+    console.log(sport);
+    console.log(location)
 
     const pageNum = parseInt(page as string, 10);
     const limitNum = parseInt(limit as string, 10);
@@ -427,11 +435,13 @@ export const getAllMatches = asyncErrorhandler(
         ],
       },
     };
-
+    if (sport) {
+      query.sports = { $regex: sport, $options: "i" };
+    }
+    
     if (search) {
       query.$or = [
         { title: { $regex: search, $options: "i" } },
-        { sports: { $regex: search, $options: "i" } },
         { "turfId.name": { $regex: search, $options: "i" } },
         { "turfId.location": { $regex: search, $options: "i" } },
       ];
@@ -676,7 +686,7 @@ export const hostMatch = asyncErrorhandler(
       paymentPerPerson,
       "123"
     );
-//newwwwwwww
+    //newwwwwwww
     const usersInLocation = await User.find({
       preferredLocation: turf.location,
       _id: { $ne: userId },
@@ -703,8 +713,6 @@ export const hostMatch = asyncErrorhandler(
       type: "match",
       matchId: newMatch._id,
     });
-
-   
 
     res.status(201).json({
       message: "Match created and venue booked successfully",

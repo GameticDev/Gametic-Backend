@@ -4,9 +4,6 @@ import Turff, { TurffData } from "../../Model/turfModel";
 import { asyncErrorhandler } from "../../Middleware/asyncErrorHandler";
 import { Booking } from "../../Model/bookingModel";
 import Razorpay from "razorpay";
-import User from "../../Model/userModel";
-import { sendBookEmail } from "../../utils/sentEmail";
-import { CustomError } from "../../utils/customError";
 interface BookVenueRequestBody {
   turfId: string;
   date: string;
