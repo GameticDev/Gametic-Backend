@@ -102,7 +102,6 @@ console.log('kkkkkkkkk')
 
 router.post('/updateprofile'  ,upload.single('picture') , updateUser )
 
-// router.get("/me" , loginedUser)
 
  router.post("/check",loginUser)
 router.get("/postById/:id", getPostById);
