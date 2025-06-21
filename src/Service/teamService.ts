@@ -7,7 +7,7 @@ export const createTeamService = async (
   sport: string,
   memberIds: mongoose.Types.ObjectId[],
   teamManager: mongoose.Types.ObjectId
-) => {
+)   => {
   // Basic input validation
   if (!name || !sport || !Array.isArray(memberIds)) {
     throw new Error('Invalid input parameters');

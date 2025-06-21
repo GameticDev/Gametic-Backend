@@ -11,6 +11,7 @@ import { AuthenticatedRequest } from "../Middleware/auth";
 
 export const createTeam = asyncErrorhandler(async (req:AuthenticatedRequest , res: Response) => {
   const { name, sport, memberEmails} = req.body;
+  console.log(memberEmails,'hhhh')
 
   const { userId } = req.user!;
 
@@ -52,11 +53,12 @@ await sendEmailService(memberEmails);
 
 export const TeamById=asyncErrorhandler(async(req:Request,res:Response)=>{
     const{id}=req.params;
+
     if(!id){
       throw new CustomError(" Team id not found",404)
     }
     const team=await Team.findById(id)
-     .populate('members','name email')
+     .populate('members','name email picture')
 
      if(!team){
       throw new CustomError("Team not found",404)

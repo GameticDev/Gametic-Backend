@@ -82,7 +82,7 @@ router.post('/postById/:id/join',joinMatchPost)
 
 router.patch('/deletepost/:id',deletePost)
 
-
+console.log('kkkkkkkkk')
 
 router.post('/updateprofile'  ,upload.single('picture') , updateUser )
 
@@ -108,7 +108,9 @@ router.patch('/tournament/:id/join-team',joinTeamToTournament)
 router.post('/updateprofile'  ,upload.single('picture') , updateUser )
 
 
-router.get('/teamById/:id',authMiddleware,TeamById)
+router.get('/teamById/:id',authMiddleware,TeamById,() => console.log('kkkk')
+
+)
 
 router.post("/check", loginUser);
 
