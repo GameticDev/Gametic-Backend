@@ -17,6 +17,7 @@ import {
   getPostById,
   joinMatchPost,
 } from "../Controller/matchPostController";
+import { getJoinedPlayers, getMessage, sendMessage } from "../Controller/message/messageController";
 import { createTeam } from "../Controller/teamController";
 import {
   createHostingOrder,
@@ -37,7 +38,6 @@ import {
 import upload from "../Middleware/uploadMulter";
 import { authMiddleware } from "../Middleware/auth";
 import { createTournamentPost, getAllTournamentPost, joinTeamToTournament, tournamentById } from "../Controller/tournamentController";
-import { getJoinedPlayers, getMessage, sendMessage } from "../Controller/message/messageController";
 
 const router = express.Router();
 
@@ -53,6 +53,8 @@ router.post("/verifyotp", verifyOtp);
 
 router.post("/auth/google", googleAuth);
 
+router.post("/addMatch", addPost);
+router.get("/getAllPost", authMiddleware, getAllPost);
 router.post("/addMatch", addPost);
 router.get("/getAllPost", authMiddleware, getAllPost);
 router
@@ -76,12 +78,17 @@ router
   .post("/venue-booking", authMiddleware, bookVenue)
   .post("/create-booking-order", authMiddleware, createBookingOrder)
   .get("/getAllVenues", getAllVenuesforUser)
-  .get("/veunesById/:turfId", getVenueByIdforUser);
+  .get("/veunesById/:turfId", getVenueByIdforUser)
+
+  //location
+  .patch("/update-location", authMiddleware, updatePreferredLocation)
+  .get("/getLocations", getLocations);
 
 router.post("/addMatch", addPost);
 router.get("/getAllPost", getAllPost);
 
 router.get("/postById/:id", getPostById);
+router.get("/postById/:id", getPostById);
 
 router.post("/postById/:id/join", joinMatchPost);
 
@@ -90,7 +97,6 @@ router.patch("/deletepost/:id", deletePost);
 router.post("/team", createTeam);
 
 router.post("/updateprofile", upload.single("picture"), updateUser);
-
 
 router.post("/check", loginUser);
 router.get("/postById/:id", getPostById);
@@ -104,15 +110,19 @@ router.post("/team", createTeam);
 
 router.post("/check", loginUser);
 
+router.get("/getAllTournament", getAllTournamentPost);
+router.post(
+  "/createTournament",
+  authMiddleware,
+  upload.single("image"),
+  createTournamentPost
+);
 
-router.get('/getAllTournament',getAllTournamentPost)
-router.post('/createTournament',authMiddleware,upload.single('image'),createTournamentPost)
+router.post("/team", authMiddleware, createTeam);
 
-router.post('/team',authMiddleware,createTeam)
-
-router.get('/tournamentById/:id',tournamentById)
+router.get("/tournamentById/:id", tournamentById);
 
 router.patch('/tournament/:id/join-team',joinTeamToTournament)
-router.get("/user", authMiddleware ,LoginedUserDetails);
+router.post("/user", authMiddleware ,LoginedUserDetails);
 router.get('/getplayes', authMiddleware , getJoinedPlayers)
 export default router;

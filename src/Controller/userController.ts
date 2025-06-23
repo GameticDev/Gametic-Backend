@@ -26,6 +26,14 @@ interface AuthenticatedRequest extends Request {
   };
 }
 
+
+interface AuthenticatedRequest extends Request {
+  user?: {
+    userId: string;
+    role: string | undefined;
+  };
+}
+
 export const registerUser = asyncHandler(
   async (
     req: Request<{}, {}, RegisterUserInput>,
@@ -84,7 +92,7 @@ export const registerUser = asyncHandler(
       path: "/",
       sameSite: "none",
     });
-
+console.log(user,"user in login page")
     res.status(201).json({
       message: `User ${username} registered successfully!`,
       user,

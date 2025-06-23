@@ -6,6 +6,8 @@ import ownerRoute from "./Routes/ownerRoute";
 import userRouter from "./Routes/userRoutes";
 import cors from "cors";
 import adminRoute from "./Routes/adminRoutes";
+import locationRoute from './Routes/locationRoute'
+
 import http from "http";
 import { initSocket } from "./socket";
 
@@ -43,6 +45,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/admin", adminRoute);
 app.use("/api/", ownerRoute);
 app.use("/api", userRouter);
+
+app.use('/api', locationRoute);
 
 const server = http.createServer(app);
 initSocket(server);
