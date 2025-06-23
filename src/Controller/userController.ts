@@ -72,7 +72,7 @@ export const registerUser = asyncHandler(
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: true,
-      maxAge: 50 * 60 * 1000,
+      maxAge: 1 * 60 * 60 * 1000,
       path: "/",
       sameSite: "none",
     });

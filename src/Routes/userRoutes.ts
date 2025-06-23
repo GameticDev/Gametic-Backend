@@ -37,6 +37,7 @@ import {
 import upload from "../Middleware/uploadMulter";
 import { authMiddleware } from "../Middleware/auth";
 import { createTournamentPost, getAllTournamentPost, joinTeamToTournament, tournamentById } from "../Controller/tournamentController";
+import { getJoinedPlayers, getMessage, sendMessage } from "../Controller/message/messageController";
 
 const router = express.Router();
 
@@ -66,6 +67,10 @@ router
   .post("/create-hosting-order", authMiddleware, createHostingOrder)
   .post("/create-join-order/:matchId", authMiddleware, createJoinOrder)
   .post("/verify-join-payment", authMiddleware, verifyJoinPayment)
+
+  .post('/sendmessage' , authMiddleware , sendMessage)
+  .get('/getMessage/:roomId',authMiddleware,getMessage)
+
 
   //venue booking
   .post("/venue-booking", authMiddleware, bookVenue)
@@ -109,5 +114,5 @@ router.get('/tournamentById/:id',tournamentById)
 
 router.patch('/tournament/:id/join-team',joinTeamToTournament)
 router.get("/user", authMiddleware ,LoginedUserDetails);
-
+router.get('/getplayes', authMiddleware , getJoinedPlayers)
 export default router;
