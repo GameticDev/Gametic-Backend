@@ -1,19 +1,19 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from "mongoose";
 
 export interface ITournament extends Document {
   title: string;
   description: string;
   sport: string;
- 
-  location:string; 
+  turf: mongoose.Types.ObjectId;
   dateFrom: Date;
   dateTo: Date;
-  teamManager: mongoose.Types.ObjectId;
+  organizer: mongoose.Types.ObjectId;
   maxTeams: number;
+  maxPlayers: number;
   joinedTeams: mongoose.Types.ObjectId[];
   entryFee: number;
   prizePool: number;
-  status: 'upcoming' | 'ongoing' | 'completed';
+  status: "upcoming" | "ongoing" | "completed";
   image: string;
 }
 
@@ -22,19 +22,24 @@ const tournamentSchema = new Schema<ITournament>(
     title: { type: String, required: true },
     description: { type: String, required: true },
     sport: { type: String, required: true },
-    location: String,
+    turf: { type: Schema.Types.ObjectId, required: true, ref: "Turf" },
     dateFrom: { type: Date, required: true },
     dateTo: { type: Date, required: true },
-    teamManager: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    organizer: { type: Schema.Types.ObjectId, ref: "User", required: true },
     maxTeams: { type: Number, required: true },
-    joinedTeams: [{ type: Schema.Types.ObjectId, ref: 'Team' }],
+    maxPlayers: { type: Number, required: true },
+    joinedTeams: [{ type: Schema.Types.ObjectId, ref: "Team" }],
     entryFee: { type: Number, required: true },
     prizePool: { type: Number, required: true },
-    status: { type: String, enum: ['upcoming', 'ongoing', 'completed'], default: 'upcoming' },
-    image: { type: String }, // URL of the stadium image
+    status: {
+      type: String,
+      enum: ["upcoming", "ongoing", "completed"],
+      default: "upcoming",
+    },
+    image: { type: String },
   },
   { timestamps: true }
 );
-const Tournament=mongoose.model<ITournament>('Tournament',tournamentSchema)
+const Tournament = mongoose.model<ITournament>("Tournament", tournamentSchema);
 export default Tournament;
 // export default mongoose.model<ITournament>('Tournament', tournamentSchema);<

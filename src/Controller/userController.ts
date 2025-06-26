@@ -7,7 +7,6 @@ import {
   getLoginedUserDetails,
   loginService,
   registerUserService,
-  updateUserService,
 } from "../Service/userService";
 import { CustomError } from "../utils/customError";
 import User from "../Model/userModel";
@@ -17,6 +16,7 @@ import { OAuth2Client } from "google-auth-library";
 import { generateRefreshToken, generateToken } from "../utils/generateToken";
 import OtpModel from "../Model/otpModel";
 import Match from "../Model/matchPostModel";
+import mongoose from "mongoose";
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -24,7 +24,6 @@ interface AuthenticatedRequest extends Request {
     role: string | undefined;
   };
 }
-
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -91,7 +90,7 @@ export const registerUser = asyncHandler(
       path: "/",
       sameSite: "none",
     });
-console.log(user,"user in login page")
+    console.log(user, "user in login page");
     res.status(201).json({
       message: `User ${username} registered successfully!`,
       user,
@@ -329,44 +328,109 @@ export const googleAuth = asyncHandler(
 );
 
 export const updateUser = asyncHandler(
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    console.log("hi");
-
-    const _id = "68301fd02868a7c0612bbbf7";
-    const { username, password } = req.body;
+  async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    const userId = req.user?.userId;
+    const { username, phone } = req.body;
     const file = req.file;
+    console.log(req.body);
+    if (!userId) {
+      throw new CustomError("User not authenticated", 401);
+    }
 
-    console.log(file, "file ");
-    const updateUser = await updateUserService(
-      _id,
-      { username, password },
-      file
-    );
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      throw new CustomError("Invalid user ID", 400);
+    }
 
-    console.log(updateUser, " hh");
+    const updateData: {
+      picture?: string;
+      username?: string;
+      phone?: string;
+    } = {};
+
+    if (username) {
+      if (typeof username !== "string" || username.trim().length < 3) {
+        throw new CustomError(
+          "Username must be a string with at least 3 characters",
+          400
+        );
+      }
+      // Check if username is already taken
+      const existingUser = await User.findOne({
+        username,
+        _id: { $ne: userId },
+      });
+      if (existingUser) {
+        throw new CustomError("Username is already taken", 400);
+      }
+      updateData.username = username.trim();
+    }
+
+    // Validate and add phone to update data if provided
+    if (phone) {
+      if (typeof phone !== "string" || !/^\d{10}$/.test(phone)) {
+        throw new CustomError(
+          "Phone number must be a valid 10-digit number",
+          400
+        );
+      }
+      updateData.phone = phone;
+    }
+
+    if (file) {
+      updateData.picture = file.path;
+    }
+
+    // Check if there's anything to update
+    if (Object.keys(updateData).length === 0) {
+      throw new CustomError("No valid fields provided for update", 400);
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    ).select("-password"); // Exclude password from response
+
+    if (!updatedUser) {
+      throw new CustomError("User not found", 404);
+    }
 
     res.status(200).json({
-      message: "User update successfully",
+      message: "User updated successfully",
+      user: {
+        _id: updatedUser._id,
+        username: updatedUser.username,
+        phone: updatedUser.phone,
+        image: updatedUser.picture,
+      },
     });
   }
 );
 
 export const LoginedUserDetails = asyncHandler(
-  async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
-// const userId ="68470dbc134bb9190212de1e"
+  async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    // const userId ="68470dbc134bb9190212de1e"
 
-const userId = req.user?.userId
-console.log(userId);
+    const userId = req.user?.userId;
+    console.log(userId);
 
-if (!userId) {
-  throw new Error("User not authenticated");
-}
+    if (!userId) {
+      throw new Error("User not authenticated");
+    }
 
-const user = await getLoginedUserDetails(userId);
-console.log(user , "user");
+    const user = await getLoginedUserDetails(userId);
+    console.log(user, "user");
 
     res.status(200).json({
-      user
-    })
+      user,
+    });
   }
 );

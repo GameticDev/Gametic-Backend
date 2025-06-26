@@ -17,7 +17,10 @@ import {
   getPostById,
   joinMatchPost,
 } from "../Controller/matchPostController";
-import { createTeam } from "../Controller/teamController";
+import {
+  createTeamAndJoin,
+  createTeamOrder,
+} from "../Controller/teamController";
 import {
   createHostingOrder,
   createJoinOrder,
@@ -32,6 +35,7 @@ import {
   bookVenue,
   createBookingOrder,
   getAllVenuesforUser,
+  getVenue,
   getVenueByIdforUser,
 } from "../Controller/user/venueController";
 import upload from "../Middleware/uploadMulter";
@@ -46,6 +50,11 @@ import {
   getLocations,
   updatePreferredLocation,
 } from "../Controller/user/locationController";
+import {
+  getUserNotifications,
+  markAllNotificationsAsRead,
+  markNotificationAsRead,
+} from "../Controller/user/notificationController";
 
 const router = express.Router();
 
@@ -73,7 +82,7 @@ router
   .post("/join-match/:matchId", authMiddleware, joinMatch)
   .get("/turfby-sport", getVenueBySports)
 
-  .delete("/:matchId/leave", authMiddleware , cancelMatch)
+  .delete("/:matchId/leave", authMiddleware, cancelMatch)
   .post("/create-hosting-order", authMiddleware, createHostingOrder)
   .post("/create-join-order/:matchId", authMiddleware, createJoinOrder)
   .post("/verify-join-payment", authMiddleware, verifyJoinPayment)
@@ -86,7 +95,12 @@ router
 
   //location
   .patch("/update-location", authMiddleware, updatePreferredLocation)
-  .get("/getLocations", getLocations);
+  .get("/getLocations", getLocations)
+
+  //notification
+  .get("/allNotification", authMiddleware, getUserNotifications)
+  .patch("/markRead/:notificationId", authMiddleware, markNotificationAsRead)
+  .patch("/markAllRead", authMiddleware, markAllNotificationsAsRead);
 
 router.post("/addMatch", addPost);
 router.get("/getAllPost", getAllPost);
@@ -98,8 +112,6 @@ router.post("/postById/:id/join", joinMatchPost);
 
 router.patch("/deletepost/:id", deletePost);
 
-router.post("/team", createTeam);
-
 router.post("/updateprofile", upload.single("picture"), updateUser);
 
 router.post("/check", loginUser);
@@ -108,9 +120,12 @@ router.get("/postById/:id", getPostById);
 router.post("/postById/:id/join", joinMatchPost);
 
 router.patch("/deletepost/:id", deletePost);
-router.post("/updateprofile", upload.single("picture"), updateUser);
-
-router.post("/team", createTeam);
+router.put(
+  "/updateprofile",
+  authMiddleware,
+  upload.single("picture"),
+  updateUser
+);
 
 router.post("/check", loginUser);
 
@@ -122,11 +137,15 @@ router.post(
   createTournamentPost
 );
 
-router.post("/team", authMiddleware, createTeam);
+router
+  .post("/team", authMiddleware, createTeamAndJoin)
+  .post("/create-team-order", authMiddleware, createTeamOrder);
 
 router.get("/tournamentById/:id", tournamentById);
 
 router.patch("/tournament/:id/join-team", joinTeamToTournament);
 router.get("/user", authMiddleware, LoginedUserDetails);
+
+router.get("/getVenue", getVenue);
 
 export default router;
