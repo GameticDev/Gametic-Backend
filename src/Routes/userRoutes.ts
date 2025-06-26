@@ -38,6 +38,7 @@ import {
 import upload from "../Middleware/uploadMulter";
 import { authMiddleware } from "../Middleware/auth";
 import { createTournamentPost, getAllTournamentPost, joinTeamToTournament, tournamentById } from "../Controller/tournamentController";
+import { getLocations, updatePreferredLocation } from "../Controller/user/locationController";
 
 const router = express.Router();
 
@@ -71,7 +72,7 @@ router
   .post("/verify-join-payment", authMiddleware, verifyJoinPayment)
 
   .post('/sendmessage' , authMiddleware , sendMessage)
-  .get('/getMessage/:roomId',authMiddleware,getMessage)
+  .get('/getMessage/:roomId' , authMiddleware ,getMessage)
 
 
   //venue booking
@@ -80,7 +81,7 @@ router
   .get("/getAllVenues", getAllVenuesforUser)
   .get("/veunesById/:turfId", getVenueByIdforUser)
 
-  //location
+
   .patch("/update-location", authMiddleware, updatePreferredLocation)
   .get("/getLocations", getLocations);
 
@@ -123,6 +124,6 @@ router.post("/team", authMiddleware, createTeam);
 router.get("/tournamentById/:id", tournamentById);
 
 router.patch('/tournament/:id/join-team',joinTeamToTournament)
-router.post("/user", authMiddleware ,LoginedUserDetails);
+router.get("/user", authMiddleware ,LoginedUserDetails);
 router.get('/getplayes', authMiddleware , getJoinedPlayers)
 export default router;

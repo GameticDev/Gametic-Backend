@@ -138,9 +138,9 @@ export const loginUser = asyncHandler(
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: true, // only works on HTTPS
+      secure: true,
       sameSite: "none",
-      maxAge: 50 * 60 * 1000,
+      maxAge: 1 * 24 * 60 * 60 * 1000,
     });
 
     res.cookie("refreshToken", refreshToken, {

@@ -2,6 +2,8 @@ import { Server, Socket } from "socket.io";
 import http from "http";
 import mongoose from "mongoose";
 import User from "./Model/userModel";
+import chatModal from "./Model/chatModal";
+import Match from "./Model/matchPostModel";
 
 let io: Server;
 
@@ -15,46 +17,71 @@ export const initSocket = (server: http.Server) => {
   });
 
   io.on("connection", async (socket: Socket) => {
-    console.log("🔌 New client connected:", socket.id);
-
     const userId = socket.handshake.query.userId as string;
 
+    // Join location room (optional)
     if (userId && mongoose.Types.ObjectId.isValid(userId)) {
       try {
         const user = await User.findById(userId).select("preferredLocation");
-        if (user && user.preferredLocation) {
+        if (user?.preferredLocation) {
           socket.join(`location:${user.preferredLocation}`);
-          console.log(`User ${userId} joined room location:${user.preferredLocation}`);
+          console.log(
+            `Joined location room: location:${user.preferredLocation}`
+          );
         }
-      } catch (error) {
-        console.error("Error fetching user location:", error);
+      } catch (err) {
+        console.error("Error fetching user location:", err);
       }
-    } else {
-      console.log("Invalid or missing userId for socket:", socket.id);
     }
 
-    socket.on("notification", (data) => {
-      if (!data.title || !data.message) {
-        console.log("Invalid notification data");
-        return;
+    // Join match room
+
+    socket.on("joinRoom", async ({ roomId, userId }) => {
+      console.log("joinRoom received:", roomId, userId);
+      if (!roomId || !userId) return;
+
+      socket.join(roomId);
+      const sockets = await io.in(roomId).fetchSockets();
+      console.log(
+        `${socket.id} joined room ${roomId} | Total: ${sockets.length}`
+      );
+    });
+
+    socket.on("sendMessage", async (data) => {
+      const { roomId, message, userId } = data;
+      // const senderId = socket.handshake.query.userId as string;
+      const senderId = userId;
+      //
+
+      try {
+        const match = await Match.findById(roomId);
+        if (!match) {
+          return socket.emit("errorMessage", "Match not found");
+        }
+
+        const isJoined = match.joinedPlayers.some(
+          (id) => id.toString() === senderId
+        );
+        if (!isJoined) {
+          return socket.emit("errorMessage", "You are not part of this match");
+        }
+        const chat = await chatModal.create({ roomId, senderId, message });
+        const fullMessage = await chat.populate("senderId", "username _id picture");
+
+        console.log("Emitting message to room:", roomId);
+        io.to(roomId).emit("newMessage", fullMessage);
+      } catch (err) {
+        console.error("sendMessage error:", err);
       }
-      io?.emit("newNotification", {
-        title: data.title,
-        message: data.message,
-        type: data.type || "system",
-      });
-      console.log("📩 Notification received and broadcast:", data);
     });
 
     socket.on("disconnect", () => {
-      console.log("❌ Client disconnected:", socket.id);
+      console.log("Client disconnected:", socket.id);
     });
   });
 };
 
 export const getIO = () => {
-  if (!io) {
-    throw new Error("Socket.io not initialized");
-  }
+  if (!io) throw new Error("Socket not initialized");
   return io;
 };

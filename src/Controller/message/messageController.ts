@@ -3,34 +3,80 @@ import { asyncErrorhandler } from "../../Middleware/asyncErrorHandler";
 import { AuthenticatedRequest } from "../../Middleware/auth";
 import { CustomError } from "../../utils/customError";
 import chatModal from "../../Model/chatModal";
-import asyncHandler from "../../Middleware/asyncHandler";
 import Match from "../../Model/matchPostModel";
 
 
-export const sendMessage = asyncErrorhandler(async (req: AuthenticatedRequest, res: Response) => {
-    const {roomId , senderId , message } = req.body 
+export const sendMessage = asyncErrorhandler(
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { roomId, senderId, message } = req.body;
+
+    console.log(roomId , senderId , "dfghj");
     
-    if(req.user?.userId !== senderId ){
-        throw new CustomError("you not joined this match")
+    if (!roomId || !senderId || !message) {
+      throw new CustomError("All fields are required", 400);
     }
+
+    if (req.user?.userId !== senderId) {
+      throw new CustomError("Unauthorized sender", 403);
+    }
+
+    const match = await Match.findOne({ _id: roomId });
+
     
-    const chat = await chatModal.create({roomId , senderId , message})
-    await chat.save()
-    return res.status(200).json({chat})
-})
+    if (!match) {
+      throw new CustomError("Match (room) not found", 404);
+    }
 
-export const getMessage = asyncErrorhandler(async (req: AuthenticatedRequest, res: Response) => {
-    const {roomId} = req.params
-    const chat = await chatModal.find({roomId})
-   return res.status(200).json({chat})
+    const isJoined = match.joinedPlayers.some(
+      (playerId) => playerId.toString() === senderId
+    );
 
-})
+    if (!isJoined) {
+      throw new CustomError("You are not joined in this match", 403);
+    }
 
-export const getJoinedPlayers = asyncErrorhandler(async (req: AuthenticatedRequest, res: Response) => { 
-    const id  = req.user?.userId
-      const joinedOnlyMatches = await Match.find({
-    joinedPlayers: id,
-    userId: { $ne: id },
-  }).select("title  joinedPlayers")
-  res.status(200).json({players:joinedOnlyMatches})
-})
+    
+    // const chat = await chatModal.create({ roomId, senderId, message });
+
+    // return res.status(200).json({ chat });
+  }
+);
+
+
+export const getMessage = asyncErrorhandler(
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { roomId } = req.params;
+
+    if (!roomId) {
+      return res.status(400).json({ message: "Room ID is required" });
+    }
+
+    const chat = await chatModal
+      .find({ roomId })
+      .populate({
+        path: "senderId",
+        select: "username _id", 
+      })
+      .sort({ createdAt: 1 });
+
+    return res.status(200).json({ chat });
+  }
+);
+
+
+export const getJoinedPlayers = asyncErrorhandler(
+  async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const joinedOnlyMatches = await Match.find({
+      joinedPlayers: userId,
+      userId: { $ne: userId },
+    }).select("title joinedPlayers");
+
+    res.status(200).json({ players: joinedOnlyMatches });
+  }
+);
