@@ -90,7 +90,7 @@ export const bookVenue = asyncErrorhandler(
       return;
     }
 
-    const userId = req.user?.userId; 
+    const userId = req.user?.userId;
     if (!userId) {
       res.status(401).json({ message: "User not authenticated" });
       return;
@@ -135,6 +135,13 @@ export const bookVenue = asyncErrorhandler(
       .json({ message: "Venue booked successfully", booking: newBooking });
   }
 );
+
+export const getVenue = asyncErrorhandler(async (req, res) => {
+  const turf = await Turff.find({ location: "Alappuzha" });
+  console.log(turf);
+
+  res.status(200).json({ data: turf });
+});
 
 export const getAllVenuesforUser = asyncErrorhandler(
   async (req: Request, res: Response) => {
