@@ -186,12 +186,10 @@ export const createHostingOrder = asyncErrorhandler(
     }
     const turfRate = turf.hourlyRate * 100;
     const amount = Math.ceil(turfRate / maxPlayers);
-    const amount = Math.ceil(turfRate / maxPlayers);
 
     // Create Razorpay order
     try {
       const options = {
-        amount: amount, // Razorpay expects amount in paise
         amount: amount, // Razorpay expects amount in paise
         currency: "INR",
         receipt: `host_${Date.now()}`,
@@ -397,17 +395,6 @@ export const getAllMatches = asyncErrorhandler(
       sport = "",
       location = "",
     } = req.query;
-    console.log(sport);
-    console.log(location);
-    const {
-      page = "1",
-      limit = "10",
-      search = "",
-      sport = "",
-      location = "",
-    } = req.query;
-    console.log(sport);
-    console.log(location);
 
     const pageNum = parseInt(page as string, 10);
     const limitNum = parseInt(limit as string, 10);
@@ -489,7 +476,7 @@ export const getMatchById = asyncErrorhandler(
 
     const match: MatchPost | null = await Match.findById(matchId)
       .populate("userId", "name username")
-      .populate("turfId", "name location")
+      .populate("turfId", "name location city area")
       .populate("joinedPlayers", "name username");
 
     if (!match) {
@@ -742,33 +729,27 @@ export const joinMatch = asyncErrorhandler(
 
     if (!mongoose.Types.ObjectId.isValid(matchId)) {
       return next(new CustomError("Invalid match ID", 400));
-      return next(new CustomError("Invalid match ID", 400));
     }
 
     const userId = req.user?.userId;
     if (!userId) {
-      return next(new CustomError("User not authenticated", 401));
       return next(new CustomError("User not authenticated", 401));
     }
 
     const match = await Match.findById(matchId);
     if (!match) {
       return next(new CustomError("Match not found", 404));
-      return next(new CustomError("Match not found", 404));
     }
 
     if (match.status !== "open") {
-      return next(new CustomError("Match is not open for joining", 400));
       return next(new CustomError("Match is not open for joining", 400));
     }
 
     if (match.joinedPlayers.some((player) => player.equals(userId))) {
       return next(new CustomError("User has already joined this match", 400));
-      return next(new CustomError("User has already joined this match", 400));
     }
 
     if (match.joinedPlayers.length >= match.maxPlayers) {
-      return next(new CustomError("Match is full", 400));
       return next(new CustomError("Match is full", 400));
     }
 

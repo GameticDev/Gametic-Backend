@@ -11,7 +11,6 @@ import locationRoute from './Routes/locationRoute'
 import http from "http";
 import { initSocket } from "./socket";
 import manageError from "./Middleware/manageError";
-import manageError from "./Middleware/manageError";
 
 const app = express();
 dotenv.config();

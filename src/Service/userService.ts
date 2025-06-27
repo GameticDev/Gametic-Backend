@@ -79,7 +79,7 @@ export const loginService = async ({ email, password }: LoginUserInput) => {
 
   const isMatch = await user.matchPassword(password);
   if (!isMatch) {
-    throw new CustomError("Invalid password", 401);
+    throw new CustomError("Invalid password", 404);
   }
 
   const payload: UserPayload = {
@@ -115,7 +115,6 @@ export const logoutService = () => {
 
 export const getLoginedUserDetails = async (id: string) => {
   const user = await User.findById(id).select(
-    "_id email username picture role preferredLocation phone"
     "_id email username picture role preferredLocation phone"
   );
 

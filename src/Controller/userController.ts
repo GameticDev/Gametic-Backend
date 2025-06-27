@@ -3,6 +3,7 @@ import { RegisterUserInput, UserPayload } from "../Type/user";
 import { loginValidation, registerValidation } from "../utils/userValidation";
 import { ValidationError } from "joi";
 import asyncHandler from "../Middleware/asyncHandler";
+import { asyncErrorhandler } from "../Middleware/asyncErrorHandler";
 import {
   getLoginedUserDetails,
   loginService,
@@ -15,16 +16,7 @@ import { sendOtp } from "../utils/sentEmail";
 import { OAuth2Client } from "google-auth-library";
 import { generateRefreshToken, generateToken } from "../utils/generateToken";
 import OtpModel from "../Model/otpModel";
-import Match from "../Model/matchPostModel";
 import mongoose from "mongoose";
-import { asyncErrorhandler } from "../Middleware/asyncErrorHandler";
-
-interface AuthenticatedRequest extends Request {
-  user?: {
-    userId: string;
-    role: string | undefined;
-  };
-}
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -39,7 +31,6 @@ export const registerUser = asyncErrorhandler(
     res: Response,
     next: NextFunction
   ): Promise<void> => {
-    console.log(req.body);
     const { username, email, password, role } = req.body;
 
     const { error }: { error?: ValidationError } = registerValidation.validate({
@@ -52,15 +43,16 @@ export const registerUser = asyncErrorhandler(
     if (error) {
       return next(new CustomError(error.details[0].message, 400));
     }
+
     const existingUser = await User.findOne({ $or: [{ username }] });
     if (existingUser) {
-      return next(new CustomError("username already exists", 400));
+      return next(new CustomError("Username already exists", 400));
     }
 
     const user = await registerUserService({
-      username: username,
-      email: email,
-      password: password,
+      username,
+      email,
+      password,
       role,
       picture: "",
       sign: "local",
@@ -91,8 +83,7 @@ export const registerUser = asyncErrorhandler(
       path: "/",
       sameSite: "none",
     });
-    console.log(user, "user in login page");
-    console.log(user, "user in login page");
+
     res.status(201).json({
       message: `User ${username} registered successfully!`,
       user,
@@ -122,17 +113,11 @@ export const loginUser = asyncErrorhandler(
       email,
       password,
     });
-    console.log(
-      accessToken,
-      refreshToken,
-      user,
-      "accessToken,refreshToken,user................"
-    );
-    // Make all cookies consistent for cross-origin
+
     res.cookie("role", user.role, {
-      httpOnly: true, // Keep false if you need to access it from JS
+      httpOnly: true,
       secure: true,
-      sameSite: "none", // Change this to "none"
+      sameSite: "none",
       path: "/",
     });
 
@@ -140,7 +125,8 @@ export const loginUser = asyncErrorhandler(
       httpOnly: true,
       secure: true,
       sameSite: "none",
-      maxAge:  7 * 24 * 60 * 60 * 1000,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: "/",
     });
 
     res.cookie("refreshToken", refreshToken, {
@@ -148,36 +134,35 @@ export const loginUser = asyncErrorhandler(
       secure: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: "/",
-      sameSite: "strict",
+      sameSite: "none",
     });
+
     res.status(200).json({
-      message: `Login successful! Welcome back,`,
+      message: "Login successful! Welcome back",
       user,
     });
   }
 );
 
-export const logOut = asyncHandler(async (req, res) => {
-  res.clearCookie("accessToken", {
-    httpOnly: true,
-    secure: true,
-    sameSite: "none",
-    path: "/",
-  });
+export const logOut = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      path: "/",
+    });
 
-  res.clearCookie("refreshToken", {
-    httpOnly: true,
-    secure: true,
-    sameSite: "none",
-    path: "/",
-  });
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      path: "/",
+    });
 
-  res.status(200).json({ message: "user logout successfully" });
-});
-
-const generateOTP = (): string => {
-  return crypto.randomInt(100000, 999999).toString();
-};
+    res.status(200).json({ message: "User logged out successfully" });
+  }
+);
 
 export const emailVerification = asyncHandler(
   async (
@@ -192,19 +177,17 @@ export const emailVerification = asyncHandler(
       return next(new CustomError("User already exists", 404));
     }
 
-    const otp = generateOTP();
+    const otp = crypto.randomInt(100000, 999999).toString();
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
-    console.log(otp);
 
     try {
-      const send = await sendOtp(email, otp);
-      console.log(send, "send");
+      await sendOtp(email, otp);
     } catch (error) {
-      console.log(error, "hiii");
+      console.error("Error sending OTP:", error);
+      return next(new CustomError("Failed to send OTP", 500));
     }
 
     await OtpModel.deleteMany({ email });
-
     await OtpModel.create({ email, otp, expiresAt });
 
     res.status(201).json({ message: "OTP sent to email" });
@@ -212,12 +195,14 @@ export const emailVerification = asyncHandler(
 );
 
 export const verifyOtp = asyncHandler(
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     const { email, otp } = req.body;
-    console.log(req.body);
 
     const existingOtp = await OtpModel.findOne({ email });
-
     if (!existingOtp) {
       return next(new CustomError("No email verification requested", 400));
     }
@@ -235,38 +220,29 @@ export const verifyOtp = asyncHandler(
     res.status(200).json({ message: "OTP verified successfully" });
   }
 );
-//google
+
 export const googleAuth = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {
-    console.log("controller in google auth...");
-    console.log("Request body:", req.body);
-
     const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-
     const { credential } = req.body;
 
     if (!credential) {
-      console.log("No credential provided");
       res.status(400).json({ message: "Google credential is required" });
       return;
     }
-    res.cookie("test", "hello", { httpOnly: false });
 
     try {
-      console.log("Verifying id_token...");
       const ticket = await client.verifyIdToken({
         idToken: credential,
         audience: process.env.GOOGLE_CLIENT_ID,
       });
       const payload = ticket.getPayload();
       if (!payload?.email) {
-        console.log("No email in payload");
         res.status(400).json({ message: "Invalid Google token payload" });
         return;
       }
 
       const { email, picture, name } = payload;
-      console.log("Google fetched payload:", { email, name, picture });
 
       const user = await registerUserService({
         username: name || "Google User",
@@ -277,39 +253,30 @@ export const googleAuth = asyncHandler(
         sign: "google",
       });
 
-      console.log("Google user created:", user);
-
-      const userRole: "user" | "owner" | "admin" = user.role ?? "user";
-      const userEmail: string = user.email ?? "default@example.com";
-      const userUsername: string = user.username ?? "Google User";
-
       const tokenPayload: UserPayload = {
         _id: user.id,
-        email: userEmail,
-        role: userRole,
+        email: user.email ?? "default@example.com",
+        role: user.role ?? "user",
         picture: user.picture ?? "",
-        username: userUsername,
+        username: user.username ?? "Google User",
       };
 
       const accessToken = generateToken(tokenPayload);
       const refreshToken = generateRefreshToken(tokenPayload);
-      console.log(accessToken);
-      console.log(refreshToken);
 
-      res.cookie("role", "user", {
+      res.cookie("role", user.role ?? "user", {
         httpOnly: false,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        sameSite: "none",
         path: "/",
       });
       res.cookie("accessToken", accessToken, {
         httpOnly: true,
         secure: true,
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        maxAge: 7 * 24 * 60 * 60 * 1000,
         path: "/",
         sameSite: "none",
       });
-
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: true,
@@ -337,15 +304,8 @@ export const updateUser = asyncHandler(
   ): Promise<void> => {
     const userId = req.user?.userId;
     const { username, phone } = req.body;
-  async (
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
-    const userId = req.user?.userId;
-    const { username, phone } = req.body;
     const file = req.file;
-    console.log(req.body);
+
     if (!userId) {
       throw new CustomError("User not authenticated", 401);
     }
@@ -367,7 +327,6 @@ export const updateUser = asyncHandler(
           400
         );
       }
-      // Check if username is already taken
       const existingUser = await User.findOne({
         username,
         _id: { $ne: userId },
@@ -378,7 +337,6 @@ export const updateUser = asyncHandler(
       updateData.username = username.trim();
     }
 
-    // Validate and add phone to update data if provided
     if (phone) {
       if (typeof phone !== "string" || !/^\d{10}$/.test(phone)) {
         throw new CustomError(
@@ -393,7 +351,6 @@ export const updateUser = asyncHandler(
       updateData.picture = file.path;
     }
 
-    // Check if there's anything to update
     if (Object.keys(updateData).length === 0) {
       throw new CustomError("No valid fields provided for update", 400);
     }
@@ -402,82 +359,13 @@ export const updateUser = asyncHandler(
       userId,
       { $set: updateData },
       { new: true, runValidators: true }
-    ).select("-password"); // Exclude password from response
-
-    if (!updatedUser) {
-      throw new CustomError("User not found", 404);
-    }
-    console.log(req.body);
-    if (!userId) {
-      throw new CustomError("User not authenticated", 401);
-    }
-
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      throw new CustomError("Invalid user ID", 400);
-    }
-
-    const updateData: {
-      picture?: string;
-      username?: string;
-      phone?: string;
-    } = {};
-
-    if (username) {
-      if (typeof username !== "string" || username.trim().length < 3) {
-        throw new CustomError(
-          "Username must be a string with at least 3 characters",
-          400
-        );
-      }
-      // Check if username is already taken
-      const existingUser = await User.findOne({
-        username,
-        _id: { $ne: userId },
-      });
-      if (existingUser) {
-        throw new CustomError("Username is already taken", 400);
-      }
-      updateData.username = username.trim();
-    }
-
-    // Validate and add phone to update data if provided
-    if (phone) {
-      if (typeof phone !== "string" || !/^\d{10}$/.test(phone)) {
-        throw new CustomError(
-          "Phone number must be a valid 10-digit number",
-          400
-        );
-      }
-      updateData.phone = phone;
-    }
-
-    if (file) {
-      updateData.picture = file.path;
-    }
-
-    // Check if there's anything to update
-    if (Object.keys(updateData).length === 0) {
-      throw new CustomError("No valid fields provided for update", 400);
-    }
-
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { $set: updateData },
-      { new: true, runValidators: true }
-    ).select("-password"); // Exclude password from response
+    ).select("-password");
 
     if (!updatedUser) {
       throw new CustomError("User not found", 404);
     }
 
     res.status(200).json({
-      message: "User updated successfully",
-      user: {
-        _id: updatedUser._id,
-        username: updatedUser.username,
-        phone: updatedUser.phone,
-        image: updatedUser.picture,
-      },
       message: "User updated successfully",
       user: {
         _id: updatedUser._id,
@@ -495,34 +383,15 @@ export const LoginedUserDetails = asyncHandler(
     res: Response,
     next: NextFunction
   ): Promise<void> => {
-    // const userId ="68470dbc134bb9190212de1e"
-  async (
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
-    // const userId ="68470dbc134bb9190212de1e"
-
     const userId = req.user?.userId;
-    console.log(userId);
-    const userId = req.user?.userId;
-    console.log(userId);
 
     if (!userId) {
-      throw new Error("User not authenticated");
-    }
-    if (!userId) {
-      throw new Error("User not authenticated");
+      throw new CustomError("User not authenticated", 401);
     }
 
     const user = await getLoginedUserDetails(userId);
-    console.log(user, "user");
-    const user = await getLoginedUserDetails(userId);
-    console.log(user, "user");
 
     res.status(200).json({
-      user,
-    });
       user,
     });
   }
