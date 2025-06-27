@@ -10,6 +10,7 @@ import locationRoute from './Routes/locationRoute'
 
 import http from "http";
 import { initSocket } from "./socket";
+import manageError from "./Middleware/manageError";
 
 const app = express();
 dotenv.config();
@@ -48,6 +49,7 @@ app.use("/api", userRouter);
 
 app.use('/api', locationRoute);
 
+app.use(manageError)
 const server = http.createServer(app);
 initSocket(server);
 

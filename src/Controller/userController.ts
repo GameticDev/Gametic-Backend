@@ -78,7 +78,7 @@ export const registerUser = asyncHandler(
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: true,
-      maxAge: 50 * 60 * 1000,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
       path: "/",
       sameSite: "none",
     });
@@ -136,14 +136,14 @@ export const loginUser = asyncHandler(
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: true, // only works on HTTPS
+      secure: true,
       sameSite: "none",
-      maxAge: 50 * 60 * 1000,
+      maxAge:  7 * 24 * 60 * 60 * 1000,
     });
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: true, // Use environment check here too
+      secure: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: "/",
       sameSite: "strict",
@@ -303,7 +303,7 @@ export const googleAuth = asyncHandler(
       res.cookie("accessToken", accessToken, {
         httpOnly: true,
         secure: true,
-        maxAge: 50 * 60 * 1000,
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         path: "/",
         sameSite: "none",
       });

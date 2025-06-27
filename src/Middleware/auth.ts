@@ -24,6 +24,8 @@ const authMiddleware = async (
 ) => {
   try {
     const token = req.cookies?.accessToken;
+    console.log(token, "sdfghjk");
+    
     if (!token) {
       return next(new CustomError('Not authenticated', 401));
     }
