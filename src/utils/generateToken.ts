@@ -23,7 +23,7 @@ export const generateToken = (user: UserPayload): string => {
       username: user.username,
     },
     process.env.JWT_SECRET,
-    { expiresIn: '50m' }
+    { expiresIn: '7d' }
   );
 };
 

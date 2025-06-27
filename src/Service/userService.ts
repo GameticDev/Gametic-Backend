@@ -116,6 +116,7 @@ export const logoutService = () => {
 export const getLoginedUserDetails = async (id: string) => {
   const user = await User.findById(id).select(
     "_id email username picture role preferredLocation phone"
+    "_id email username picture role preferredLocation phone"
   );
 
   if (!user) {
