@@ -1,14 +1,8 @@
 import mongoose from "mongoose";
-import { Booking } from "../Model/bookingModel";
 import Match from "../Model/matchPostModel";
 import Turff from "../Model/turfModel";
 import User, { IUserDocument } from "../Model/userModel";
-import {
-  RegisterUserInput,
-  LoginUserInput,
-  UserPayload,
-  UpdateUserData,
-} from "../Type/user";
+import { RegisterUserInput, LoginUserInput, UserPayload } from "../Type/user";
 import { CustomError } from "../utils/customError";
 import { generateToken, generateRefreshToken } from "../utils/generateToken";
 
@@ -119,8 +113,6 @@ export const logoutService = () => {
 
 
 
-
-// Get Logged-In User Details
 export const getLoginedUserDetails = async (id: string) => {
   const user = await User.findById(id).select(
     "_id email username picture role preferredLocation phone"
@@ -130,58 +122,66 @@ export const getLoginedUserDetails = async (id: string) => {
     throw new CustomError("user not found", 404);
   }
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
   const joinedOnlyMatches = await Match.find({
     joinedPlayers: id,
     userId: { $ne: id },
+    date: { $gte: today }, 
   })
     .populate("userId", "username email")
-    .populate("joinedPlayers", "username email");
+    .populate("joinedPlayers", "username email")
+    .populate("turfId", "name");
 
   const hostedMatches = await Match.find({
     userId: id,
+    date: { $gte: today }, 
   })
     .populate("userId", "username email")
-    .populate("joinedPlayers", "username email");
+    .populate("joinedPlayers", "username email")
+    .populate("turfId", "name");
 
   const bookings = await Turff.aggregate([
-      {
-        $match: {
-          "bookings.userId": new mongoose.Types.ObjectId(id),
-          "bookings.bookingType": "normal",
+    {
+      $match: {
+        "bookings.userId": new mongoose.Types.ObjectId(id),
+        "bookings.bookingType": "normal",
+        "bookings.date": { $gte: today }, 
+      },
+    },
+    { $unwind: "$bookings" },
+    {
+      $match: {
+        "bookings.userId": new mongoose.Types.ObjectId(id),
+        "bookings.bookingType": "normal",
+        "bookings.date": { $gte: today }, 
+      },
+    },
+    {
+      $project: {
+        _id: "$bookings._id",
+        userId: "$bookings.userId",
+        date: "$bookings.date",
+        startTime: "$bookings.startTime",
+        endTime: "$bookings.endTime",
+        status: "$bookings.status",
+        paymentStatus: "$bookings.paymentStatus",
+        amount: "$bookings.amount",
+        createdAt: "$bookings.createdAt",
+        bookingType: "$bookings.bookingType",
+        paymentId: "$bookings.paymentId",
+        turf: {
+          _id: "$_id",
+          name: "$name",
+          city: "$city",
+          area: "$area",
+          location: "$location",
+          turfType: "$turfType",
         },
       },
-      { $unwind: "$bookings" },
-      {
-        $match: {
-          "bookings.userId": new mongoose.Types.ObjectId(id),
-          "bookings.bookingType": "normal",
-        },
-      },
-      {
-        $project: {
-          _id: "$bookings._id",
-          userId: "$bookings.userId",
-          date: "$bookings.date",
-          startTime: "$bookings.startTime",
-          endTime: "$bookings.endTime",
-          status: "$bookings.status",
-          paymentStatus: "$bookings.paymentStatus",
-          amount: "$bookings.amount",
-          createdAt: "$bookings.createdAt",
-          bookingType: "$bookings.bookingType",
-          paymentId: "$bookings.paymentId",
-          turf: {
-            _id: "$_id",
-            name: "$name",
-            city: "$city",
-            area: "$area",
-            location: "$location",
-            turfType: "$turfType",
-          },
-        },
-      },
-    ]);
-
+    },
+  ]);
 
   return {
     user,

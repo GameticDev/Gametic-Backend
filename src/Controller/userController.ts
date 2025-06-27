@@ -17,6 +17,7 @@ import { generateRefreshToken, generateToken } from "../utils/generateToken";
 import OtpModel from "../Model/otpModel";
 import Match from "../Model/matchPostModel";
 import mongoose from "mongoose";
+import { asyncErrorhandler } from "../Middleware/asyncErrorHandler";
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -32,7 +33,7 @@ interface AuthenticatedRequest extends Request {
   };
 }
 
-export const registerUser = asyncHandler(
+export const registerUser = asyncErrorhandler(
   async (
     req: Request<{}, {}, RegisterUserInput>,
     res: Response,
@@ -101,7 +102,7 @@ export const registerUser = asyncHandler(
   }
 );
 
-export const loginUser = asyncHandler(
+export const loginUser = asyncErrorhandler(
   async (
     req: Request<{}, {}, RegisterUserInput>,
     res: Response,

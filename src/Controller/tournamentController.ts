@@ -176,8 +176,8 @@ export const getAllTournamentPost = asyncErrorhandler(
       message: "All Tournament Posts successfully fetched",
       data: {
         tournaments,
+        total: totalTournaments,
         pagination: {
-          total: totalTournaments,
           page: pageNumber,
           limit: limitNumber,
           totalPages,

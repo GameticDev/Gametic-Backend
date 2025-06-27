@@ -29,7 +29,9 @@ export const initSocket = (server: http.Server) => {
         const user = await User.findById(userId).select("preferredLocation");
         if (user && user.preferredLocation) {
           socket.join(`location:${user.preferredLocation}`);
-          console.log(`User ${userId} joined room location:${user.preferredLocation}`);
+          console.log(
+            `User ${userId} joined room location:${user.preferredLocation}`
+          );
         }
       } catch (error) {
         console.error("Error fetching user:", error);
@@ -47,6 +49,8 @@ export const initSocket = (server: http.Server) => {
         title: data.title,
         message: data.message,
         type: data.type || "system",
+        matchId: data.matchId || null,
+        tournamentId: data.tournamentId || null,
       });
       console.log("📩 Notification received and broadcast:", data);
     });

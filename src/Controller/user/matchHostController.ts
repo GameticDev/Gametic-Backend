@@ -458,12 +458,8 @@ export const getAllMatches = asyncErrorhandler(
     res.status(200).json({
       message: "Matches retrieved successfully",
       matches,
-      pagination: {
-        page: pageNum,
-        limit: limitNum,
-        total: totalMatches,
-        totalPages: Math.ceil(totalMatches / limitNum),
-      },
+      total: totalMatches,
+      totalPages: Math.ceil(totalMatches / limitNum),
     });
   }
 );
@@ -665,6 +661,7 @@ export const hostMatch = asyncErrorhandler(
     });
 
     await Promise.all([newMatch.save(), turf.save()]);
+    console.log(newMatch);
     const existingUser = await User.findOne({ _id: userId });
     console.log(existingUser);
 
@@ -722,8 +719,6 @@ export const hostMatch = asyncErrorhandler(
   }
 );
 
-
-
 export const joinMatch = asyncErrorhandler(
   async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     const { matchId } = req.params;
@@ -778,7 +773,9 @@ export const joinMatch = asyncErrorhandler(
 
     const notification = new Notification({
       title: "New Player Joined Your Match!",
-      message: `${existingUser.username} has joined your match "${match.title}" scheduled on ${match.date.toDateString()} at ${match.startTime}.`,
+      message: `${existingUser.username} has joined your match "${
+        match.title
+      }" scheduled on ${match.date.toDateString()} at ${match.startTime}.`,
       type: "match",
       userId: hostId,
       matchId: match._id,
@@ -790,7 +787,9 @@ export const joinMatch = asyncErrorhandler(
     const io = getIO();
     io.to(`user:${hostId}`).emit("newNotification", {
       title: "New Player Joined Your Match!",
-      message: `${existingUser.username} has joined your match "${match.title}" scheduled on ${match.date.toDateString()} at ${match.startTime}.`,
+      message: `${existingUser.username} has joined your match "${
+        match.title
+      }" scheduled on ${match.date.toDateString()} at ${match.startTime}.`,
       type: "match",
       matchId: match._id,
     });
