@@ -185,12 +185,12 @@ export const createHostingOrder = asyncErrorhandler(
       return;
     }
     const turfRate = turf.hourlyRate * 100;
-    const amount = turfRate / maxPlayers;
+    const amount = Math.ceil(turfRate / maxPlayers);
 
     // Create Razorpay order
     try {
       const options = {
-        amount: amount * 100, // Razorpay expects amount in paise
+        amount: amount, // Razorpay expects amount in paise
         currency: "INR",
         receipt: `host_${Date.now()}`,
         notes: {
@@ -388,7 +388,15 @@ export const verifyJoinPayment = asyncErrorhandler(
 
 export const getAllMatches = asyncErrorhandler(
   async (req: Request, res: Response): Promise<void> => {
-    const { page = "1", limit = "10", search = "" } = req.query;
+    const {
+      page = "1",
+      limit = "10",
+      search = "",
+      sport = "",
+      location = "",
+    } = req.query;
+    console.log(sport);
+    console.log(location);
 
     const pageNum = parseInt(page as string, 10);
     const limitNum = parseInt(limit as string, 10);
@@ -427,11 +435,13 @@ export const getAllMatches = asyncErrorhandler(
         ],
       },
     };
+    if (sport) {
+      query.sports = { $regex: sport, $options: "i" };
+    }
 
     if (search) {
       query.$or = [
         { title: { $regex: search, $options: "i" } },
-        { sports: { $regex: search, $options: "i" } },
         { "turfId.name": { $regex: search, $options: "i" } },
         { "turfId.location": { $regex: search, $options: "i" } },
       ];
@@ -676,7 +686,7 @@ export const hostMatch = asyncErrorhandler(
       paymentPerPerson,
       "123"
     );
-//newwwwwwww
+    //newwwwwwww
     const usersInLocation = await User.find({
       preferredLocation: turf.location,
       _id: { $ne: userId },
@@ -704,8 +714,6 @@ export const hostMatch = asyncErrorhandler(
       matchId: newMatch._id,
     });
 
-   
-
     res.status(201).json({
       message: "Match created and venue booked successfully",
       match: newMatch,
@@ -714,41 +722,38 @@ export const hostMatch = asyncErrorhandler(
   }
 );
 
+
+
 export const joinMatch = asyncErrorhandler(
   async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     const { matchId } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(matchId)) {
-      res.status(400).json({ message: "Invalid match ID" });
-      return;
+      return next(new CustomError("Invalid match ID", 400));
     }
 
     const userId = req.user?.userId;
     if (!userId) {
-      res.status(401).json({ message: "User not authenticated" });
-      return;
+      return next(new CustomError("User not authenticated", 401));
     }
 
     const match = await Match.findById(matchId);
     if (!match) {
-      res.status(404).json({ message: "Match not found" });
-      return;
+      return next(new CustomError("Match not found", 404));
     }
 
     if (match.status !== "open") {
-      res.status(400).json({ message: "Match is not open for joining" });
-      return;
+      return next(new CustomError("Match is not open for joining", 400));
     }
 
     if (match.joinedPlayers.some((player) => player.equals(userId))) {
-      res.status(400).json({ message: "User has already joined this match" });
-      return;
+      return next(new CustomError("User has already joined this match", 400));
     }
 
     if (match.joinedPlayers.length >= match.maxPlayers) {
-      res.status(400).json({ message: "Match is full" });
-      return;
+      return next(new CustomError("Match is full", 400));
     }
+
     match.joinedPlayers.push(new Types.ObjectId(userId));
 
     if (match.joinedPlayers.length === match.maxPlayers) {
@@ -756,15 +761,39 @@ export const joinMatch = asyncErrorhandler(
     }
 
     await match.save();
-    const existingUser = await User.findOne({ _id: userId });
-    console.log(existingUser);
 
+    const existingUser = await User.findOne({ _id: userId });
     if (!existingUser || !existingUser.email) {
       return next(new CustomError("User not found", 400));
     }
 
-    const send = await sentJoinEmail(existingUser.email);
-    console.log(send, "send");
+    await sentJoinEmail(existingUser.email);
+
+    const hostId = match.userId;
+    const hostUser = await User.findById(hostId).select("username");
+
+    if (!hostUser) {
+      return next(new CustomError("Host user not found", 400));
+    }
+
+    const notification = new Notification({
+      title: "New Player Joined Your Match!",
+      message: `${existingUser.username} has joined your match "${match.title}" scheduled on ${match.date.toDateString()} at ${match.startTime}.`,
+      type: "match",
+      userId: hostId,
+      matchId: match._id,
+      isRead: false,
+    });
+
+    await notification.save();
+
+    const io = getIO();
+    io.to(`user:${hostId}`).emit("newNotification", {
+      title: "New Player Joined Your Match!",
+      message: `${existingUser.username} has joined your match "${match.title}" scheduled on ${match.date.toDateString()} at ${match.startTime}.`,
+      type: "match",
+      matchId: match._id,
+    });
 
     res.status(200).json({ message: "Successfully joined the match", match });
   }

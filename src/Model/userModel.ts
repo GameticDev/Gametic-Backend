@@ -6,7 +6,7 @@ export interface IUser {
   email: string;
   password?: string;
   picture?: string;
-  phone?: number;
+  phone?: string;
   location?: string;
   bio?: string;
   businessName?: string;
@@ -28,14 +28,17 @@ const userSchema: Schema<IUserDocument> = new Schema(
     username: {
       type: String,
       trim: true,
-      required: true,
+      required: [true, 'Username is required'],
+      minlength: [3, 'Username must be at least 3 characters'],
+      unique: true,
     },
     email: {
       type: String,
       trim: true,
       unique: true,
       lowercase: true,
-      required: true,
+      required: [true, 'Email is required'],
+      match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email address'],
     },
     password: {
       type: String,
@@ -59,10 +62,27 @@ const userSchema: Schema<IUserDocument> = new Schema(
       enum: ["user", "owner", "admin"],
       default: "user",
     },
-    phone: { type: Number },
-    location: { type: String },
-    bio: { type: String },
-    businessName: { type: String },
+    phone: {
+      type: String, // Corrected to use mongoose's String type
+      trim: true,
+      match: [/^\d{10}$/, 'Phone number must be a valid 10-digit number'],
+      default: null,
+    },
+    location: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    bio: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    businessName: {
+      type: String,
+      trim: true,
+      default: null,
+    },
     preferredLocation: {
       type: String,
       default: function (this: IUserDocument) {

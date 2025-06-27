@@ -22,6 +22,11 @@ export const initSocket = (server: http.Server) => {
     // Join location room (optional)
     if (userId && mongoose.Types.ObjectId.isValid(userId)) {
       try {
+        // Join user-specific room for individual notifications
+        socket.join(`user:${userId}`);
+        console.log(`User ${userId} joined room user:${userId}`);
+
+        // Optionally fetch user for other features (e.g., location-based rooms)
         const user = await User.findById(userId).select("preferredLocation");
         if (user?.preferredLocation) {
           socket.join(`location:${user.preferredLocation}`);
@@ -29,12 +34,12 @@ export const initSocket = (server: http.Server) => {
             `Joined location room: location:${user.preferredLocation}`
           );
         }
-      } catch (err) {
-        console.error("Error fetching user location:", err);
+      } catch (error) {
+        console.error("Error fetching user location:", error);
       }
     }
 
-    // Join match room
+
 
     socket.on("joinRoom", async ({ roomId, userId }) => {
       console.log("joinRoom received:", roomId, userId);

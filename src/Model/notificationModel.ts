@@ -6,6 +6,7 @@ export interface INotification {
   type: string;
   userId: Types.ObjectId;
   matchId?: Types.ObjectId;
+  tournamentId?: Types.ObjectId;
   isRead: boolean;
   createdAt: Date;
 }
@@ -26,7 +27,7 @@ const notificationSchema: Schema<INotificationDocument> = new Schema(
     },
     type: {
       type: String,
-      enum: ["system", "match", "booking","tournament"],
+      enum: ["system", "match", "booking", "tournament"],
       default: "system",
     },
     userId: {
@@ -37,6 +38,11 @@ const notificationSchema: Schema<INotificationDocument> = new Schema(
     matchId: {
       type: Schema.Types.ObjectId,
       ref: "Match",
+      required: false,
+    },
+    tournamentId: {
+      type: Schema.Types.ObjectId,
+      ref: "Tournament",
       required: false,
     },
     isRead: {

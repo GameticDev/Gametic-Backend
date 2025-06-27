@@ -33,6 +33,6 @@ export interface OtpDocument extends Document {
 
 export interface UpdateUserData {
   username?: string;
-  password?: string;
+  phone?: string;
 }
 
