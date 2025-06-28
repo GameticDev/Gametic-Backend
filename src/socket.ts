@@ -26,7 +26,6 @@ export const initSocket = (server: http.Server) => {
         socket.join(`user:${userId}`);
         console.log(`User ${userId} joined room user:${userId}`);
 
-        // Optionally fetch user for other features (e.g., location-based rooms)
         const user = await User.findById(userId).select("preferredLocation");
         if (user?.preferredLocation) {
           socket.join(`location:${user.preferredLocation}`);
